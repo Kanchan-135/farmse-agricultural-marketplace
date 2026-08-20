@@ -3,10 +3,12 @@ import { User as UserIcon, Mail, Phone, MapPin, ShieldCheck, Lock, Save, Tractor
 import { useAuth } from '../../context/AuthContext';
 import { authApi } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from '../../context/LanguageContext';
 
 export const CustomerProfilePage: React.FC = () => {
   const { user, updateUser, isFarmer } = useAuth();
   const { success, error: toastError } = useToast();
+  const { t } = useTranslation();
 
   const [name, setName] = useState<string>(user?.name || '');
   const [phone, setPhone] = useState<string>(user?.phone || '');
@@ -52,7 +54,7 @@ export const CustomerProfilePage: React.FC = () => {
       const res = await authApi.updateProfile(payload);
       if (res.data.success && res.data.data) {
         updateUser(res.data.data);
-        success('Profile details updated successfully!');
+        success(t('toasts.profileUpdated'));
       }
     } catch (err: any) {
       toastError(err.response?.data?.error || 'Failed to update profile');
@@ -88,10 +90,10 @@ export const CustomerProfilePage: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-          Account Settings & Profile
+          {t('nav.profile')}
         </h1>
         <p className="text-xs text-gray-500 mt-1">
-          Manage your personal details, shipping destinations, and security settings.
+          {t('auth.loginSubtitle')}
         </p>
       </div>
 
@@ -106,7 +108,7 @@ export const CustomerProfilePage: React.FC = () => {
               )}&background=15803d&color=fff`
             }
             alt={user?.name}
-            className="w-20 h-20 rounded-3xl object-cover mx-auto border-2 border-brand-200 shadow-md"
+            className="w-20 h-20 rounded-3xl object-cover mx-auto border-2 border-emerald-200 shadow-md"
           />
           <div>
             <h3 className="text-base font-bold text-gray-900">{user?.name}</h3>
@@ -120,13 +122,13 @@ export const CustomerProfilePage: React.FC = () => {
                   : 'bg-emerald-100 text-emerald-900'
               }`}
             >
-              {user?.role} ACCOUNT
+              {user?.role === 'FARMER' ? t('nav.farmerAccount') : user?.role === 'ADMIN' ? t('nav.adminAccount') : t('nav.customerAccount')}
             </span>
           </div>
 
           <div className="pt-3 border-t border-gray-100 text-[11px] text-gray-500 space-y-1 text-left">
-            <p>Member Since: <strong>{new Date(user?.createdAt || Date.now()).toLocaleDateString()}</strong></p>
-            <p>Account Status: <strong className="text-emerald-700">Verified & Active</strong></p>
+            <p>{t('orders.placedOn')}: <strong>{new Date(user?.createdAt || Date.now()).toLocaleDateString()}</strong></p>
+            <p>{t('common.status')}: <strong className="text-emerald-700">{t('common.verified')}</strong></p>
           </div>
         </div>
 
@@ -137,69 +139,69 @@ export const CustomerProfilePage: React.FC = () => {
             className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm space-y-6"
           >
             <h3 className="text-base font-bold text-gray-900 pb-3 border-b border-gray-100 flex items-center gap-2">
-              <UserIcon className="w-4 h-4 text-brand-600" /> Personal Details
+              <UserIcon className="w-4 h-4 text-emerald-700" /> {t('nav.profile')}
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">Full Name</label>
+                <label className="font-bold text-gray-700">{t('auth.nameLabel')}</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-brand-500"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-emerald-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">Phone Number</label>
+                <label className="font-bold text-gray-700">{t('auth.phoneLabel')}</label>
                 <input
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-brand-500"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-emerald-500"
                 />
               </div>
 
               <div className="sm:col-span-2 space-y-1">
-                <label className="font-bold text-gray-700">Default Shipping Address</label>
+                <label className="font-bold text-gray-700">{t('auth.addressLabel')}</label>
                 <input
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="Street / Apartment address"
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-brand-500"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-emerald-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">City</label>
+                <label className="font-bold text-gray-700">{t('auth.cityLabel')}</label>
                 <input
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-brand-500"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-emerald-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">State</label>
+                <label className="font-bold text-gray-700">{t('auth.stateLabel')}</label>
                 <input
                   type="text"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-brand-500"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-emerald-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">Pincode</label>
+                <label className="font-bold text-gray-700">{t('auth.pincodeLabel')}</label>
                 <input
                   type="text"
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-brand-500"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-emerald-500"
                 />
               </div>
             </div>
@@ -208,12 +210,12 @@ export const CustomerProfilePage: React.FC = () => {
             {isFarmer && (
               <div className="pt-4 border-t border-gray-100 space-y-4 text-xs">
                 <h4 className="font-bold text-amber-900 flex items-center gap-1.5">
-                  <Tractor className="w-4 h-4 text-amber-600" /> Farm Profile Details
+                  <Tractor className="w-4 h-4 text-amber-600" /> {t('auth.farmerDetailsTitle')}
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="font-bold text-gray-700">Farm / Brand Name</label>
+                    <label className="font-bold text-gray-700">{t('auth.farmNameLabel')}</label>
                     <input
                       type="text"
                       value={farmName}
@@ -223,7 +225,7 @@ export const CustomerProfilePage: React.FC = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-bold text-gray-700">Farm Size (Acres)</label>
+                    <label className="font-bold text-gray-700">{t('auth.farmSizeLabel')}</label>
                     <input
                       type="number"
                       value={farmSizeAcres}
@@ -233,7 +235,7 @@ export const CustomerProfilePage: React.FC = () => {
                   </div>
 
                   <div className="sm:col-span-2 space-y-1">
-                    <label className="font-bold text-gray-700">Farm Bio / Methods</label>
+                    <label className="font-bold text-gray-700">{t('auth.bioLabel')}</label>
                     <textarea
                       rows={3}
                       value={bio}
@@ -249,10 +251,10 @@ export const CustomerProfilePage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-brand-600 hover:bg-brand-700 disabled:bg-gray-300 text-white text-xs font-bold px-6 py-3 rounded-xl shadow-md transition flex items-center gap-2"
+                className="bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-300 text-white text-xs font-bold px-6 py-3 rounded-xl shadow-md transition flex items-center gap-2"
               >
                 <Save className="w-4 h-4" />
-                {loading ? 'Saving...' : 'Save Profile Changes'}
+                {loading ? t('common.loading') : t('common.save')}
               </button>
             </div>
           </form>
@@ -263,7 +265,7 @@ export const CustomerProfilePage: React.FC = () => {
             className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm space-y-6"
           >
             <h3 className="text-base font-bold text-gray-900 pb-3 border-b border-gray-100 flex items-center gap-2">
-              <Lock className="w-4 h-4 text-brand-600" /> Security & Password
+              <Lock className="w-4 h-4 text-emerald-700" /> {t('auth.passwordLabel')}
             </h3>
 
             <div className="space-y-4 text-xs">
@@ -275,13 +277,13 @@ export const CustomerProfilePage: React.FC = () => {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-brand-500"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-emerald-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="font-bold text-gray-700">New Password (min 6 chars)</label>
+                  <label className="font-bold text-gray-700">New Password</label>
                   <input
                     type="password"
                     required
@@ -289,7 +291,7 @@ export const CustomerProfilePage: React.FC = () => {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-brand-500"
+                    className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-emerald-500"
                   />
                 </div>
 
@@ -302,7 +304,7 @@ export const CustomerProfilePage: React.FC = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-brand-500"
+                    className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:bg-white focus:border-emerald-500"
                   />
                 </div>
               </div>
@@ -314,7 +316,7 @@ export const CustomerProfilePage: React.FC = () => {
                 disabled={pwLoading}
                 className="bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white text-xs font-bold px-6 py-3 rounded-xl shadow-md transition"
               >
-                {pwLoading ? 'Updating...' : 'Update Password'}
+                {pwLoading ? t('common.loading') : t('common.save')}
               </button>
             </div>
           </form>

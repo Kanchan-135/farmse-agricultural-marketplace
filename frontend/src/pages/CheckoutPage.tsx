@@ -17,14 +17,14 @@ import {
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
+import { useTranslation } from '../context/LanguageContext';
 import { orderApi } from '../services/api';
 import { PaymentMethod } from '../types';
 
 export const CheckoutPage: React.FC = () => {
   const { items, subtotal, deliveryFee, total, clearCart } = useCart();
   const { user } = useAuth();
-  const { toastError } = useToast() as any;
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Form State
@@ -90,9 +90,9 @@ export const CheckoutPage: React.FC = () => {
   if (items.length === 0) {
     return (
       <div className="max-w-md mx-auto my-20 p-8 bg-white rounded-3xl text-center border border-gray-100 shadow-sm space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">Your Cart is Empty</h2>
-        <Link to="/marketplace" className="inline-block text-xs font-bold text-brand-600 underline">
-          Explore Produce →
+        <h2 className="text-lg font-bold text-gray-900">{t('cart.emptyTitle')}</h2>
+        <Link to="/marketplace" className="inline-block text-xs font-bold text-emerald-700 underline">
+          {t('cart.browseMarketplace')} →
         </Link>
       </div>
     );
@@ -102,10 +102,10 @@ export const CheckoutPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-          Direct Farm Checkout
+          {t('checkout.title')}
         </h1>
         <p className="text-xs text-gray-500 mt-1">
-          Complete your delivery details to dispatch harvest directly from our partner farms.
+          {t('checkout.subtitle')}
         </p>
       </div>
 
@@ -115,79 +115,79 @@ export const CheckoutPage: React.FC = () => {
           {/* 1. Delivery Address Card */}
           <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm space-y-5">
             <h2 className="text-base font-bold text-gray-900 flex items-center gap-2 pb-3 border-b border-gray-100">
-              <MapPin className="w-5 h-5 text-brand-600" />
-              1. Delivery & Farm-Gate Logistics Address
+              <MapPin className="w-5 h-5 text-emerald-700" />
+              1. {t('checkout.deliveryDetails')}
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div className="sm:col-span-2 space-y-1">
-                <label className="font-bold text-gray-700">Street Address / House No. / Society</label>
+                <label className="font-bold text-gray-700">{t('checkout.shippingAddress')}</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Flat 402, Green Acres Apt, Near Orchard Road"
+                  placeholder={t('checkout.addressPlaceholder')}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">City / District</label>
+                <label className="font-bold text-gray-700">{t('auth.cityLabel')}</label>
                 <input
                   type="text"
                   required
                   placeholder="City"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">State</label>
+                <label className="font-bold text-gray-700">{t('auth.stateLabel')}</label>
                 <input
                   type="text"
                   required
                   placeholder="State"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">Pincode / Postal Code</label>
+                <label className="font-bold text-gray-700">{t('auth.pincodeLabel')}</label>
                 <input
                   type="text"
                   required
                   placeholder="6-digit Pincode"
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">Contact Mobile Number</label>
+                <label className="font-bold text-gray-700">{t('checkout.contactPhone')}</label>
                 <input
                   type="text"
                   required
-                  placeholder="+91 98..."
+                  placeholder={t('checkout.phonePlaceholder')}
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                 />
               </div>
 
               <div className="sm:col-span-2 space-y-1">
-                <label className="font-bold text-gray-700">Delivery Instructions (Optional)</label>
+                <label className="font-bold text-gray-700">{t('checkout.orderNotes')}</label>
                 <input
                   type="text"
-                  placeholder="e.g. Leave with security, call upon gate arrival..."
+                  placeholder={t('checkout.notesPlaceholder')}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                 />
               </div>
             </div>
@@ -196,8 +196,8 @@ export const CheckoutPage: React.FC = () => {
           {/* 2. Payment Method Abstraction Card */}
           <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm space-y-5">
             <h2 className="text-base font-bold text-gray-900 flex items-center gap-2 pb-3 border-b border-gray-100">
-              <Lock className="w-5 h-5 text-brand-600" />
-              2. Payment Method (Secure Gateway Abstraction)
+              <Lock className="w-5 h-5 text-emerald-700" />
+              2. {t('checkout.paymentMethod')}
             </h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -207,12 +207,12 @@ export const CheckoutPage: React.FC = () => {
                 onClick={() => setPaymentMethod('UPI')}
                 className={`p-4 rounded-2xl border text-center space-y-2 transition ${
                   paymentMethod === 'UPI'
-                    ? 'border-brand-600 bg-brand-50/70 ring-2 ring-brand-500/20 text-brand-900'
+                    ? 'border-emerald-700 bg-emerald-50/70 ring-2 ring-emerald-600/20 text-emerald-900'
                     : 'border-gray-200 hover:bg-gray-50 text-gray-700'
                 }`}
               >
-                <QrCode className="w-6 h-6 mx-auto text-brand-600" />
-                <span className="block text-xs font-bold">Instant UPI</span>
+                <QrCode className="w-6 h-6 mx-auto text-emerald-700" />
+                <span className="block text-xs font-bold">{t('checkout.upi')}</span>
                 <span className="block text-[10px] text-gray-400">GPay, PhonePe, Paytm</span>
               </button>
 
@@ -222,12 +222,12 @@ export const CheckoutPage: React.FC = () => {
                 onClick={() => setPaymentMethod('CARD')}
                 className={`p-4 rounded-2xl border text-center space-y-2 transition ${
                   paymentMethod === 'CARD'
-                    ? 'border-brand-600 bg-brand-50/70 ring-2 ring-brand-500/20 text-brand-900'
+                    ? 'border-emerald-700 bg-emerald-50/70 ring-2 ring-emerald-600/20 text-emerald-900'
                     : 'border-gray-200 hover:bg-gray-50 text-gray-700'
                 }`}
               >
-                <CreditCard className="w-6 h-6 mx-auto text-brand-600" />
-                <span className="block text-xs font-bold">Credit/Debit</span>
+                <CreditCard className="w-6 h-6 mx-auto text-emerald-700" />
+                <span className="block text-xs font-bold">{t('checkout.card')}</span>
                 <span className="block text-[10px] text-gray-400">Visa, MC, RuPay</span>
               </button>
 
@@ -237,12 +237,12 @@ export const CheckoutPage: React.FC = () => {
                 onClick={() => setPaymentMethod('NETBANKING')}
                 className={`p-4 rounded-2xl border text-center space-y-2 transition ${
                   paymentMethod === 'NETBANKING'
-                    ? 'border-brand-600 bg-brand-50/70 ring-2 ring-brand-500/20 text-brand-900'
+                    ? 'border-emerald-700 bg-emerald-50/70 ring-2 ring-emerald-600/20 text-emerald-900'
                     : 'border-gray-200 hover:bg-gray-50 text-gray-700'
                 }`}
               >
-                <Building className="w-6 h-6 mx-auto text-brand-600" />
-                <span className="block text-xs font-bold">NetBanking</span>
+                <Building className="w-6 h-6 mx-auto text-emerald-700" />
+                <span className="block text-xs font-bold">{t('checkout.netbanking')}</span>
                 <span className="block text-[10px] text-gray-400">All Major Banks</span>
               </button>
 
@@ -252,12 +252,12 @@ export const CheckoutPage: React.FC = () => {
                 onClick={() => setPaymentMethod('COD')}
                 className={`p-4 rounded-2xl border text-center space-y-2 transition ${
                   paymentMethod === 'COD'
-                    ? 'border-brand-600 bg-brand-50/70 ring-2 ring-brand-500/20 text-brand-900'
+                    ? 'border-emerald-700 bg-emerald-50/70 ring-2 ring-emerald-600/20 text-emerald-900'
                     : 'border-gray-200 hover:bg-gray-50 text-gray-700'
                 }`}
               >
-                <Banknote className="w-6 h-6 mx-auto text-brand-600" />
-                <span className="block text-xs font-bold">Pay On Delivery</span>
+                <Banknote className="w-6 h-6 mx-auto text-emerald-700" />
+                <span className="block text-xs font-bold">{t('checkout.cod')}</span>
                 <span className="block text-[10px] text-gray-400">Cash / UPI at door</span>
               </button>
             </div>
@@ -269,8 +269,8 @@ export const CheckoutPage: React.FC = () => {
                   <QrCode className="w-12 h-12 text-gray-800" />
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900">Scan & Pay via any UPI App</p>
-                  <p className="text-gray-500 mt-0.5">UPI ID: <span className="font-mono font-bold text-brand-700">farmse.pay@icici</span></p>
+                  <p className="font-bold text-gray-900">{t('checkout.upi')}</p>
+                  <p className="text-gray-500 mt-0.5">UPI ID: <span className="font-mono font-bold text-emerald-700">farmse.pay@icici</span></p>
                   <p className="text-[10px] text-emerald-700 mt-1">✓ Instant automatic capture & verified farm escrow</p>
                 </div>
               </div>
@@ -279,7 +279,7 @@ export const CheckoutPage: React.FC = () => {
             {paymentMethod === 'CARD' && (
               <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-3 text-xs">
                 <div className="space-y-1">
-                  <label className="font-bold text-gray-700">Card Number</label>
+                  <label className="font-bold text-gray-700">{t('checkout.card')}</label>
                   <input
                     type="text"
                     value={cardNumber}
@@ -312,9 +312,9 @@ export const CheckoutPage: React.FC = () => {
 
             {paymentMethod === 'COD' && (
               <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 space-y-1">
-                <p className="font-bold">Cash or QR scan upon delivery at your doorstep.</p>
+                <p className="font-bold">{t('checkout.cod')}</p>
                 <p className="text-amber-800 text-[11px]">
-                  Please keep exact amount or UPI handy for contact-free delivery verification.
+                  {t('checkout.codNotice')}
                 </p>
               </div>
             )}
@@ -324,50 +324,53 @@ export const CheckoutPage: React.FC = () => {
         {/* Right: Order Summary & Placement (4 cols) */}
         <div className="lg:col-span-4 bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-6 sticky top-28">
           <h3 className="text-base font-bold text-gray-900 pb-3 border-b border-gray-100">
-            Order Review ({items.length} harvests)
+            {t('cart.orderSummary')} ({items.length} {t('common.all')})
           </h3>
 
           <div className="max-h-48 overflow-y-auto divide-y divide-gray-50 space-y-2">
-            {items.map((item) => (
-              <div key={item.id} className="pt-2 flex items-center justify-between text-xs">
-                <div className="pr-2">
-                  <p className="font-bold text-gray-900 truncate max-w-[170px]">{item.product.name}</p>
-                  <p className="text-[11px] text-gray-500">
-                    {item.quantity} {item.product.unit} × ₹{item.product.price}
-                  </p>
+            {items.map((item) => {
+              const translatedUnit = t(`common.${item.product.unit}`) !== `common.${item.product.unit}` ? t(`common.${item.product.unit}`) : item.product.unit;
+              return (
+                <div key={item.id} className="pt-2 flex items-center justify-between text-xs">
+                  <div className="pr-2">
+                    <p className="font-bold text-gray-900 truncate max-w-[170px]">{item.product.name}</p>
+                    <p className="text-[11px] text-gray-500">
+                      {item.quantity} {translatedUnit} × ₹{item.product.price}
+                    </p>
+                  </div>
+                  <span className="font-bold text-gray-900">₹{item.subtotal}</span>
                 </div>
-                <span className="font-bold text-gray-900">₹{item.subtotal}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="space-y-2 pt-3 border-t border-gray-100 text-xs">
             <div className="flex justify-between text-gray-600">
-              <span>Produce Total</span>
+              <span>{t('cart.produceTotal')}</span>
               <span className="font-bold text-gray-900">₹{subtotal}</span>
             </div>
             <div className="flex justify-between text-gray-600">
-              <span>Direct Farm Logistics</span>
+              <span>{t('cart.deliveryFee')}</span>
               <span className="font-bold text-gray-900">
                 {deliveryFee === 0 ? <span className="text-emerald-700 font-bold">FREE</span> : `₹${deliveryFee}`}
               </span>
             </div>
             <div className="pt-2 border-t border-gray-100 flex justify-between text-sm font-extrabold text-gray-900">
-              <span>Total Payable</span>
-              <span className="text-xl text-brand-700 font-black">₹{total}</span>
+              <span>{t('cart.grandTotal')}</span>
+              <span className="text-xl text-emerald-800 font-black">₹{total}</span>
             </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-300 text-white font-bold text-sm py-4 rounded-full shadow-lg shadow-brand-600/30 transition active:scale-95 flex items-center justify-center gap-2"
+            className="w-full bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-300 text-white font-bold text-sm py-4 rounded-full shadow-lg shadow-emerald-700/30 transition active:scale-95 flex items-center justify-center gap-2"
           >
             {loading ? (
-              <span>Confirming Direct Order...</span>
+              <span>{t('checkout.placingOrder')}</span>
             ) : (
               <>
-                <span>Place Direct Order (₹{total})</span>
+                <span>{t('checkout.placeOrder')} (₹{total})</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

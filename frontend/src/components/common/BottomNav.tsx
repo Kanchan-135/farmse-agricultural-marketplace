@@ -4,11 +4,13 @@ import { Home, ShoppingBag, ShoppingCart, Heart, User, LayoutDashboard, ShieldCh
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useTranslation } from '../../context/LanguageContext';
 
 export const BottomNav: React.FC = () => {
   const { user, isAuthenticated, isFarmer, isAdmin } = useAuth();
   const { itemCount } = useCart();
   const { wishlist } = useWishlist();
+  const { t } = useTranslation();
   const location = useLocation();
 
   // Determine user hub link based on role
@@ -21,12 +23,12 @@ export const BottomNav: React.FC = () => {
     : '/customer/dashboard';
 
   const profileLabel = !isAuthenticated
-    ? 'Sign In'
+    ? t('nav.login')
     : isFarmer
-    ? 'Farm Hub'
+    ? t('nav.farmerHub')
     : isAdmin
-    ? 'Admin'
-    : 'Account';
+    ? t('nav.adminPanel')
+    : t('nav.profile');
 
   const ProfileIcon = !isAuthenticated
     ? User
@@ -45,13 +47,13 @@ export const BottomNav: React.FC = () => {
           className={({ isActive }) =>
             `flex flex-col items-center justify-center py-1 rounded-xl transition ${
               isActive && location.pathname === '/'
-                ? 'text-brand-700 font-bold'
+                ? 'text-emerald-700 font-bold'
                 : 'text-gray-500 hover:text-gray-900 font-medium'
             }`
           }
         >
           <Home className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5 tracking-tight">Home</span>
+          <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[55px]">{t('nav.home')}</span>
         </NavLink>
 
         {/* 2. Marketplace */}
@@ -60,13 +62,13 @@ export const BottomNav: React.FC = () => {
           className={({ isActive }) =>
             `flex flex-col items-center justify-center py-1 rounded-xl transition ${
               isActive
-                ? 'text-brand-700 font-bold'
+                ? 'text-emerald-700 font-bold'
                 : 'text-gray-500 hover:text-gray-900 font-medium'
             }`
           }
         >
           <ShoppingBag className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5 tracking-tight">Market</span>
+          <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[55px]">{t('nav.marketplace')}</span>
         </NavLink>
 
         {/* 3. Cart with Badge */}
@@ -75,7 +77,7 @@ export const BottomNav: React.FC = () => {
           className={({ isActive }) =>
             `flex flex-col items-center justify-center py-1 rounded-xl relative transition ${
               isActive
-                ? 'text-brand-700 font-bold'
+                ? 'text-emerald-700 font-bold'
                 : 'text-gray-500 hover:text-gray-900 font-medium'
             }`
           }
@@ -83,12 +85,12 @@ export const BottomNav: React.FC = () => {
           <div className="relative">
             <ShoppingCart className="w-5 h-5" />
             {itemCount > 0 && (
-              <span className="absolute -top-1.5 -right-2 bg-brand-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full min-w-[16px] text-center shadow-sm">
+              <span className="absolute -top-1.5 -right-2 bg-emerald-700 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full min-w-[16px] text-center shadow-sm">
                 {itemCount}
               </span>
             )}
           </div>
-          <span className="text-[10px] mt-0.5 tracking-tight">Cart</span>
+          <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[55px]">{t('nav.cart')}</span>
         </NavLink>
 
         {/* 4. Wishlist with Badge */}
@@ -110,7 +112,7 @@ export const BottomNav: React.FC = () => {
               </span>
             )}
           </div>
-          <span className="text-[10px] mt-0.5 tracking-tight">Saved</span>
+          <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[55px]">{t('nav.wishlist')}</span>
         </NavLink>
 
         {/* 5. Profile / Role Dashboard */}
@@ -123,7 +125,7 @@ export const BottomNav: React.FC = () => {
                   ? 'text-amber-700 font-bold'
                   : isAdmin
                   ? 'text-purple-700 font-bold'
-                  : 'text-brand-700 font-bold'
+                  : 'text-emerald-700 font-bold'
                 : 'text-gray-500 hover:text-gray-900 font-medium'
             }`
           }

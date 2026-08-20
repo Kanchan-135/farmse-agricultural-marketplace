@@ -6,9 +6,11 @@ import { productApi, categoryApi } from '../services/api';
 import { ProductCard } from '../components/marketplace/ProductCard';
 import { FilterSidebar } from '../components/marketplace/FilterSidebar';
 import { CategoryBar } from '../components/marketplace/CategoryBar';
+import { useTranslation } from '../context/LanguageContext';
 
 export const MarketplacePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   // Filter States
   const [search, setSearch] = useState<string>(searchParams.get('search') || '');
@@ -102,10 +104,10 @@ export const MarketplacePage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-              Farm Marketplace
+              {t('marketplace.title')}
             </h1>
             <p className="text-xs text-gray-500 mt-0.5">
-              Discover fresh produce harvested to order directly by certified growers
+              {t('marketplace.subtitle')}
             </p>
           </div>
 
@@ -114,10 +116,10 @@ export const MarketplacePage: React.FC = () => {
             <div className="relative w-full sm:w-72">
               <input
                 type="text"
-                placeholder="Search produce, farmer..."
+                placeholder={t('marketplace.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-white rounded-full border border-gray-200 text-xs focus:border-brand-500 outline-none shadow-sm"
+                className="w-full pl-9 pr-4 py-2 bg-white rounded-full border border-gray-200 text-xs focus:border-emerald-500 outline-none shadow-sm"
               />
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             </div>
@@ -172,12 +174,12 @@ export const MarketplacePage: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                <h3 className="font-bold text-gray-900 text-sm">Marketplace Filters</h3>
+                <h3 className="font-bold text-gray-900 text-sm">{t('marketplace.filters')}</h3>
                 <button
                   onClick={() => setMobileFilterOpen(false)}
                   className="text-xs font-bold text-gray-500 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full transition"
                 >
-                  Done ✕
+                  {t('common.close')} ✕
                 </button>
               </div>
               <FilterSidebar
@@ -207,21 +209,21 @@ export const MarketplacePage: React.FC = () => {
           {/* Top Results Bar */}
           <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <span className="font-semibold text-gray-700">
-              Showing <span className="text-brand-700 font-bold">{products.length}</span> of {totalCount} Fresh Harvests
+              {t('marketplace.showingResults')}: <span className="text-emerald-700 font-bold">{products.length}</span> / {totalCount}
             </span>
 
             <div className="flex items-center gap-2">
-              <span className="text-gray-400 font-medium">Sort by:</span>
+              <span className="text-gray-400 font-bold">{t('marketplace.sortBy')}:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 font-semibold text-gray-800 outline-none cursor-pointer focus:border-brand-500"
+                className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 font-bold text-gray-800 outline-none cursor-pointer focus:border-emerald-500 text-xs"
               >
-                <option value="newest">Freshly Listed (Newest)</option>
-                <option value="harvest_recent">Recent Harvest Date</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="rating_desc">Highest Rated ⭐</option>
+                <option value="newest">{t('marketplace.sortNewest')}</option>
+                <option value="harvest_recent">{t('marketplace.sortHarvestRecent')}</option>
+                <option value="price_asc">{t('marketplace.sortPriceAsc')}</option>
+                <option value="price_desc">{t('marketplace.sortPriceDesc')}</option>
+                <option value="rating_desc">{t('marketplace.sortRatingDesc')} ⭐</option>
               </select>
             </div>
           </div>
@@ -235,18 +237,15 @@ export const MarketplacePage: React.FC = () => {
             </div>
           ) : products.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm space-y-4">
-              <div className="w-16 h-16 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
                 <Sprout className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900">No agricultural produce found</h3>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
-                Try adjusting your search query, increasing your price range, or removing selected filters.
-              </p>
+              <h3 className="text-base font-bold text-gray-900">{t('marketplace.noProductsFound')}</h3>
               <button
                 onClick={handleResetFilters}
-                className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-6 py-2.5 rounded-full transition shadow-md"
+                className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-6 py-2.5 rounded-full transition shadow-md"
               >
-                Reset All Filters
+                {t('marketplace.clearFilters')}
               </button>
             </div>
           ) : (

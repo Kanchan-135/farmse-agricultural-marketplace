@@ -16,9 +16,11 @@ import {
 import { adminApi } from '../../services/api';
 import { AdminStats, Order, User } from '../../types';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from '../../context/LanguageContext';
 
 export const AdminDashboard: React.FC = () => {
   const { success, error: toastError } = useToast();
+  const { t } = useTranslation();
   const [data, setData] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -44,7 +46,7 @@ export const AdminDashboard: React.FC = () => {
     try {
       const res = await adminApi.toggleFarmerApproval(farmerId);
       if (res.data.success) {
-        success('Farmer verification status updated');
+        success(t('toasts.statusUpdated'));
         fetchStats();
       }
     } catch (err: any) {
@@ -56,7 +58,7 @@ export const AdminDashboard: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
         <div className="w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-xs text-gray-500">Loading platform oversight metrics...</p>
+        <p className="text-xs text-gray-500 font-bold">{t('common.loading')}</p>
       </div>
     );
   }
@@ -69,13 +71,13 @@ export const AdminDashboard: React.FC = () => {
       <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="space-y-2">
           <span className="bg-purple-500/30 text-purple-200 px-3 py-1 rounded-full text-xs font-bold border border-purple-400/30 flex items-center gap-1.5 w-fit">
-            <ShieldCheck className="w-4 h-4 text-purple-400" /> Platform Governance & Administration
+            <ShieldCheck className="w-4 h-4 text-purple-400" /> {t('admin.title')}
           </span>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
             FarmSe Executive Dashboard
           </h1>
           <p className="text-xs sm:text-sm text-purple-200/90 max-w-xl">
-            Live oversight of verified producers, customer orders, platform GMV, and farmer certifications.
+            {t('admin.subtitle')}
           </p>
         </div>
 
@@ -85,14 +87,14 @@ export const AdminDashboard: React.FC = () => {
             className="bg-white hover:bg-purple-50 text-purple-950 font-bold text-xs px-5 py-3 rounded-2xl shadow-md transition flex items-center gap-2"
           >
             <Tractor className="w-4 h-4 text-purple-700" />
-            Farmer Verification ({stats?.pendingFarmersCount || 0})
+            {t('admin.farmerVerificationTitle')} ({stats?.pendingFarmersCount || 0})
           </Link>
           <Link
             to="/admin/orders"
             className="bg-purple-700/80 hover:bg-purple-700 text-white font-bold text-xs px-5 py-3 rounded-2xl border border-purple-500/40 transition flex items-center gap-2"
           >
             <ShoppingBag className="w-4 h-4" />
-            Platform Orders
+            {t('admin.ordersTitle')}
           </Link>
         </div>
       </div>
@@ -102,8 +104,8 @@ export const AdminDashboard: React.FC = () => {
         {/* Total GMV Revenue */}
         <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Platform GMV
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              {t('admin.totalRevenue')}
             </span>
             <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
@@ -112,14 +114,14 @@ export const AdminDashboard: React.FC = () => {
           <span className="text-2xl sm:text-3xl font-black text-gray-900">
             ₹{stats?.totalRevenue.toLocaleString() || '0'}
           </span>
-          <span className="text-[11px] text-emerald-700 font-semibold block">Total Transacted</span>
+          <span className="text-[11px] text-emerald-700 font-semibold block">{t('admin.statsTitle')}</span>
         </div>
 
         {/* Total Registered Producers */}
         <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Total Farmers
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              {t('admin.totalFarmers')}
             </span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
               <Tractor className="w-4 h-4" />
@@ -129,31 +131,31 @@ export const AdminDashboard: React.FC = () => {
             {stats?.totalFarmers || 0}
           </span>
           <span className="text-[11px] text-amber-700 font-semibold block">
-            {stats?.pendingFarmersCount || 0} Pending Verification
+            {stats?.pendingFarmersCount || 0} {t('admin.pendingApprovals')}
           </span>
         </div>
 
         {/* Total Customers */}
         <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Total Consumers
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              {t('admin.totalCustomers')}
             </span>
-            <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
           </div>
           <span className="text-2xl sm:text-3xl font-black text-gray-900">
             {stats?.totalCustomers || 0}
           </span>
-          <span className="text-[11px] text-brand-700 font-semibold block">Active Buyers</span>
+          <span className="text-[11px] text-emerald-800 font-semibold block">{t('admin.totalUsers')}</span>
         </div>
 
         {/* Total Products Listed */}
         <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Produce Catalog
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              {t('farmer.totalProducts')}
             </span>
             <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
               <Package className="w-4 h-4" />
@@ -162,7 +164,7 @@ export const AdminDashboard: React.FC = () => {
           <span className="text-2xl sm:text-3xl font-black text-gray-900">
             {stats?.totalProducts || 0}
           </span>
-          <span className="text-[11px] text-purple-700 font-semibold block">Listed Harvests</span>
+          <span className="text-[11px] text-purple-700 font-semibold block">{t('marketplace.showingResults')}</span>
         </div>
       </div>
 
@@ -173,7 +175,7 @@ export const AdminDashboard: React.FC = () => {
           className="p-4 bg-white rounded-2xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition flex items-center justify-between"
         >
           <span className="flex items-center gap-2">
-            <Tractor className="w-4 h-4 text-amber-600" /> Farmers Moderation
+            <Tractor className="w-4 h-4 text-amber-600" /> {t('admin.farmerVerificationTitle')}
           </span>
           <ArrowRight className="w-4 h-4 text-gray-400" />
         </Link>
@@ -182,7 +184,7 @@ export const AdminDashboard: React.FC = () => {
           className="p-4 bg-white rounded-2xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition flex items-center justify-between"
         >
           <span className="flex items-center gap-2">
-            <Package className="w-4 h-4 text-brand-600" /> Products Oversight
+            <Package className="w-4 h-4 text-emerald-700" /> {t('farmer.myProductsTitle')}
           </span>
           <ArrowRight className="w-4 h-4 text-gray-400" />
         </Link>
@@ -191,7 +193,7 @@ export const AdminDashboard: React.FC = () => {
           className="p-4 bg-white rounded-2xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition flex items-center justify-between"
         >
           <span className="flex items-center gap-2">
-            <ShoppingBag className="w-4 h-4 text-purple-600" /> All Platform Orders
+            <ShoppingBag className="w-4 h-4 text-purple-600" /> {t('admin.ordersTitle')}
           </span>
           <ArrowRight className="w-4 h-4 text-gray-400" />
         </Link>
@@ -200,7 +202,7 @@ export const AdminDashboard: React.FC = () => {
           className="p-4 bg-white rounded-2xl border border-gray-200 hover:border-purple-400 hover:shadow-md transition flex items-center justify-between"
         >
           <span className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-blue-600" /> User Accounts
+            <Users className="w-4 h-4 text-blue-600" /> {t('admin.userManagementTitle')}
           </span>
           <ArrowRight className="w-4 h-4 text-gray-400" />
         </Link>
@@ -211,9 +213,9 @@ export const AdminDashboard: React.FC = () => {
         {/* Left: Recent Platform Orders */}
         <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-            <h3 className="text-sm font-bold text-gray-900">Recent Platform Transactions</h3>
+            <h3 className="text-sm font-bold text-gray-900">{t('admin.ordersTitle')}</h3>
             <Link to="/admin/orders" className="text-xs font-bold text-purple-700 hover:underline">
-              View All
+              {t('common.viewAll')}
             </Link>
           </div>
 
@@ -246,9 +248,9 @@ export const AdminDashboard: React.FC = () => {
         {/* Right: Recently Registered Users */}
         <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-            <h3 className="text-sm font-bold text-gray-900">Recent Registrations</h3>
+            <h3 className="text-sm font-bold text-gray-900">{t('admin.userManagementTitle')}</h3>
             <Link to="/admin/users" className="text-xs font-bold text-purple-700 hover:underline">
-              View All
+              {t('common.viewAll')}
             </Link>
           </div>
 
@@ -282,7 +284,7 @@ export const AdminDashboard: React.FC = () => {
                         : 'bg-amber-500 text-white hover:bg-amber-600'
                     }`}
                   >
-                    {u.isApproved ? 'Verified ✓' : 'Approve Now'}
+                    {u.isApproved ? 'Verified ✓' : t('admin.verifyFarmer')}
                   </button>
                 )}
               </div>

@@ -17,11 +17,13 @@ import { Order } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
+import { useTranslation } from '../../context/LanguageContext';
 
 export const CustomerDashboard: React.FC = () => {
   const { user } = useAuth();
   const { wishlist } = useWishlist();
   const { itemCount } = useCart();
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -43,16 +45,16 @@ export const CustomerDashboard: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-brand-800 via-emerald-800 to-teal-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-950 rounded-3xl p-6 sm:p-10 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="space-y-2">
           <span className="bg-white/20 text-emerald-100 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md">
-            Customer Hub
+            {t('nav.customerAccount')}
           </span>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-            Hello, {user?.name}!
+            {t('auth.loginTitle')}, {user?.name}!
           </h1>
           <p className="text-xs sm:text-sm text-emerald-100 max-w-lg">
-            Track your farm-fresh deliveries, view order receipts, and discover seasonal organic harvests.
+            {t('orders.myOrdersSubtitle')}
           </p>
         </div>
 
@@ -61,15 +63,15 @@ export const CustomerDashboard: React.FC = () => {
             to="/marketplace"
             className="bg-white hover:bg-emerald-50 text-emerald-950 font-bold text-xs px-5 py-3 rounded-2xl shadow-md transition flex items-center gap-2"
           >
-            <ShoppingBag className="w-4 h-4 text-brand-600" />
-            Browse Farm Market
+            <ShoppingBag className="w-4 h-4 text-emerald-700" />
+            {t('nav.marketplace')}
           </Link>
           <Link
             to="/customer/profile"
-            className="bg-brand-700/80 hover:bg-brand-700 text-white font-bold text-xs px-5 py-3 rounded-2xl border border-brand-500 transition flex items-center gap-2"
+            className="bg-emerald-700/80 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-3 rounded-2xl border border-emerald-500 transition flex items-center gap-2"
           >
             <UserIcon className="w-4 h-4" />
-            Edit Profile
+            {t('nav.profile')}
           </Link>
         </div>
       </div>
@@ -78,58 +80,58 @@ export const CustomerDashboard: React.FC = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <Link
           to="/customer/orders"
-          className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1 hover:border-brand-300 transition"
+          className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1 hover:border-emerald-300 transition"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Orders</span>
-            <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{t('orders.myOrdersTitle')}</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
               <ShoppingBag className="w-4 h-4" />
             </div>
           </div>
           <span className="text-2xl sm:text-3xl font-black text-gray-900">{orders.length}</span>
-          <span className="text-[11px] text-brand-700 font-semibold block">Harvest History</span>
+          <span className="text-[11px] text-emerald-800 font-semibold block">{t('common.viewAll')}</span>
         </Link>
 
         <Link
           to="/customer/orders"
-          className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1 hover:border-brand-300 transition"
+          className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1 hover:border-emerald-300 transition"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Active In-Transit</span>
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{t('orders.trackDelivery')}</span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
               <Truck className="w-4 h-4" />
             </div>
           </div>
           <span className="text-2xl sm:text-3xl font-black text-gray-900">{activeOrders.length}</span>
-          <span className="text-[11px] text-amber-700 font-semibold block">Being Plucked/Shipped</span>
+          <span className="text-[11px] text-amber-700 font-semibold block">{t('orders.statusPreparing')}</span>
         </Link>
 
         <Link
           to="/customer/wishlist"
-          className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1 hover:border-brand-300 transition"
+          className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1 hover:border-emerald-300 transition"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Saved Produce</span>
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{t('nav.wishlist')}</span>
             <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center">
               <Heart className="w-4 h-4" />
             </div>
           </div>
           <span className="text-2xl sm:text-3xl font-black text-gray-900">{wishlist.length}</span>
-          <span className="text-[11px] text-rose-700 font-semibold block">Favorites</span>
+          <span className="text-[11px] text-rose-700 font-semibold block">{t('nav.wishlist')}</span>
         </Link>
 
         <Link
           to="/cart"
-          className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1 hover:border-brand-300 transition"
+          className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1 hover:border-emerald-300 transition"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Cart Items</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{t('nav.cart')}</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
               <ShoppingBag className="w-4 h-4" />
             </div>
           </div>
           <span className="text-2xl sm:text-3xl font-black text-gray-900">{itemCount}</span>
-          <span className="text-[11px] text-emerald-700 font-semibold block">Ready For Harvest</span>
+          <span className="text-[11px] text-emerald-800 font-semibold block">{t('cart.itemCount')}</span>
         </Link>
       </div>
 
@@ -138,111 +140,81 @@ export const CustomerDashboard: React.FC = () => {
         {/* Recent Orders List (8 cols) */}
         <div className="lg:col-span-8 bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-            <div>
-              <h2 className="text-base font-bold text-gray-900">Recent Direct Orders</h2>
-              <p className="text-xs text-gray-500">Track shipments directly from individual farmers</p>
-            </div>
-            <Link to="/customer/orders" className="text-xs font-bold text-brand-700 hover:underline">
-              View All Orders →
+            <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5 text-emerald-700" />
+              {t('orders.myOrdersTitle')}
+            </h2>
+            <Link to="/customer/orders" className="text-xs font-bold text-emerald-700 hover:underline">
+              {t('common.viewAll')} →
             </Link>
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-xs text-gray-400">Loading order status...</div>
+            <div className="p-8 text-center text-xs text-gray-400">{t('common.loading')}</div>
           ) : orders.length === 0 ? (
-            <div className="text-center py-10 space-y-3">
-              <ShoppingBag className="w-8 h-8 text-gray-300 mx-auto" />
-              <p className="text-xs text-gray-500">You haven't placed any farm orders yet.</p>
-              <Link
-                to="/marketplace"
-                className="inline-block bg-brand-600 text-white text-xs font-bold px-6 py-2.5 rounded-full"
-              >
-                Start Shopping Fresh
+            <div className="p-8 text-center text-xs text-gray-400 space-y-2">
+              <p>{t('orders.noOrdersTitle')}</p>
+              <Link to="/marketplace" className="inline-block font-bold text-emerald-700 underline">
+                {t('cart.browseMarketplace')}
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
-              {orders.slice(0, 4).map((order) => (
-                <div
-                  key={order.id}
-                  className="p-4 rounded-2xl bg-gray-50/70 border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs"
-                >
+            <div className="divide-y divide-gray-50">
+              {orders.slice(0, 3).map((order) => (
+                <div key={order.id} className="py-4 flex items-center justify-between text-xs">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-gray-900">#{order.orderNumber}</span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          order.orderStatus === 'DELIVERED'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : order.orderStatus === 'CANCELLED'
-                            ? 'bg-rose-100 text-rose-800'
-                            : 'bg-amber-100 text-amber-800'
-                        }`}
-                      >
-                        {order.orderStatus}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 mt-1">
-                      {order.items?.length || 1} harvest items • Total: <strong>₹{order.totalAmount}</strong>
+                    <span className="font-mono font-bold text-gray-900">#{order.orderNumber}</span>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {order.items?.length} items • ₹{order.totalAmount}
                     </p>
-                    <span className="text-[10px] text-gray-400 block mt-0.5">
-                      Placed on {new Date(order.createdAt).toLocaleDateString()}
-                    </span>
                   </div>
-
-                  <Link
-                    to={`/orders/track/${order.id}`}
-                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-white hover:bg-brand-50 border border-gray-200 hover:border-brand-300 text-brand-700 font-bold rounded-xl shadow-sm transition"
-                  >
-                    <Truck className="w-3.5 h-3.5" /> Track Harvest
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      {order.orderStatus}
+                    </span>
+                    <Link
+                      to={`/orders/track/${order.id}`}
+                      className="px-3 py-1.5 bg-gray-100 hover:bg-emerald-50 hover:text-emerald-800 font-bold rounded-lg text-[11px] transition"
+                    >
+                      {t('orders.trackDelivery')}
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Profile Card & Delivery Address (4 cols) */}
-        <div className="lg:col-span-4 bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-6">
+        {/* Profile Card (4 cols) */}
+        <div className="lg:col-span-4 bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-            <h3 className="text-sm font-bold text-gray-900">Customer Profile</h3>
-            <Link to="/customer/profile" className="text-xs font-bold text-brand-600 hover:underline flex items-center gap-1">
-              <Edit2 className="w-3 h-3" /> Edit
+            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+              <UserIcon className="w-4 h-4 text-emerald-700" />
+              {t('nav.profile')}
+            </h3>
+            <Link to="/customer/profile" className="text-xs font-bold text-emerald-700 hover:underline">
+              {t('common.edit')}
             </Link>
           </div>
 
-          <div className="flex items-center gap-3">
-            <img
-              src={
-                user?.avatar ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  user?.name || 'Customer'
-                )}&background=15803d&color=fff`
-              }
-              alt={user?.name}
-              className="w-12 h-12 rounded-2xl object-cover border border-gray-200"
-            />
+          <div className="space-y-3 text-xs">
             <div>
-              <p className="text-sm font-bold text-gray-900">{user?.name}</p>
-              <p className="text-xs text-gray-500">{user?.email}</p>
+              <span className="text-gray-400 font-medium block">{t('auth.nameLabel')}</span>
+              <span className="font-bold text-gray-900 text-sm">{user?.name}</span>
             </div>
-          </div>
-
-          <div className="space-y-3 text-xs pt-2 border-t border-gray-100">
             <div>
-              <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px] block mb-0.5">
-                Default Shipping Destination
-              </span>
-              <p className="text-gray-800 font-medium">
-                {user?.address || user?.customerProfile?.defaultAddress || 'No default address configured.'}
-              </p>
+              <span className="text-gray-400 font-medium block">{t('auth.emailLabel')}</span>
+              <span className="font-bold text-gray-900">{user?.email}</span>
             </div>
-
             <div>
-              <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px] block mb-0.5">
-                Phone Number
+              <span className="text-gray-400 font-medium block">{t('auth.phoneLabel')}</span>
+              <span className="font-bold text-gray-900">{user?.phone || 'Not added'}</span>
+            </div>
+            <div>
+              <span className="text-gray-400 font-medium block">{t('auth.addressLabel')}</span>
+              <span className="text-gray-700">
+                {user?.address ? `${user.address}, ${user.city}, ${user.state}` : 'No address saved yet'}
               </span>
-              <p className="text-gray-800 font-medium">{user?.phone || 'Not set'}</p>
             </div>
           </div>
         </div>

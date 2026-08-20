@@ -17,10 +17,12 @@ import { farmerApi } from '../../services/api';
 import { FarmerDashboardData, OrderItem } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from '../../context/LanguageContext';
 
 export const FarmerDashboard: React.FC = () => {
   const { user } = useAuth();
   const { success, error: toastError } = useToast();
+  const { t } = useTranslation();
   const [data, setData] = useState<FarmerDashboardData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -46,7 +48,7 @@ export const FarmerDashboard: React.FC = () => {
     try {
       const res = await farmerApi.updateOrderStatus(orderId, status);
       if (res.data.success) {
-        success(`Order #${res.data.data?.orderNumber || orderId} status set to ${status}!`);
+        success(t('toasts.statusUpdated'));
         fetchDashboard();
       }
     } catch (err: any) {
@@ -58,7 +60,7 @@ export const FarmerDashboard: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
         <div className="w-10 h-10 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-xs text-gray-500">Loading your farm metrics...</p>
+        <p className="text-xs text-gray-500 font-bold">{t('common.loading')}</p>
       </div>
     );
   }
@@ -72,16 +74,16 @@ export const FarmerDashboard: React.FC = () => {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span className="bg-amber-500/30 text-amber-200 px-3 py-1 rounded-full text-xs font-bold border border-amber-400/30 flex items-center gap-1.5">
-              <Tractor className="w-3.5 h-3.5" /> Producer Center
+              <Tractor className="w-3.5 h-3.5" /> {t('nav.farmerHub')}
             </span>
             {stats?.isVerified && (
               <span className="bg-emerald-500/30 text-emerald-200 px-3 py-1 rounded-full text-xs font-bold border border-emerald-400/30 flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Verified Grower
+                <CheckCircle2 className="w-3.5 h-3.5" /> {t('common.verified')}
               </span>
             )}
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-            Welcome, {user?.name}!
+            {t('auth.loginTitle')}, {user?.name}!
           </h1>
           <p className="text-xs sm:text-sm text-amber-100/90 max-w-xl">
             {user?.farmerProfile?.farmName || 'Your Farm'} • {user?.farmerProfile?.location || 'Direct Farm'}
@@ -94,14 +96,14 @@ export const FarmerDashboard: React.FC = () => {
             className="bg-white hover:bg-amber-50 text-amber-950 font-bold text-xs px-5 py-3 rounded-2xl shadow-md transition flex items-center gap-2"
           >
             <Plus className="w-4 h-4 text-amber-600" />
-            Add New Harvest
+            {t('farmer.addNewProduct')}
           </Link>
           <Link
             to="/farmer/orders"
             className="bg-amber-600/80 hover:bg-amber-600 text-white font-bold text-xs px-5 py-3 rounded-2xl border border-amber-400/40 transition flex items-center gap-2"
           >
             <ShoppingBag className="w-4 h-4" />
-            Manage All Orders
+            {t('farmer.incomingOrders')}
           </Link>
         </div>
       </div>
@@ -111,8 +113,8 @@ export const FarmerDashboard: React.FC = () => {
         {/* Total Revenue */}
         <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Total Revenue
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              {t('farmer.totalEarnings')}
             </span>
             <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
@@ -121,16 +123,16 @@ export const FarmerDashboard: React.FC = () => {
           <span className="text-2xl sm:text-3xl font-black text-gray-900">
             ₹{stats?.totalRevenue.toLocaleString() || '0'}
           </span>
-          <span className="text-[11px] text-emerald-700 font-semibold block">100% Direct Payout</span>
+          <span className="text-[11px] text-emerald-700 font-semibold block">{t('home.featFairPriceTitle')}</span>
         </div>
 
         {/* Total Orders */}
         <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Orders Received
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              {t('farmer.totalOrders')}
             </span>
-            <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
               <ShoppingBag className="w-4 h-4" />
             </div>
           </div>
@@ -138,15 +140,15 @@ export const FarmerDashboard: React.FC = () => {
             {stats?.totalOrders || 0}
           </span>
           <span className="text-[11px] text-gray-500 font-medium block">
-            {stats?.pendingOrders || 0} pending dispatch
+            {stats?.pendingOrders || 0} {t('farmer.pendingFulfillment')}
           </span>
         </div>
 
         {/* Active Produce */}
         <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Active Listings
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              {t('farmer.activeListings')}
             </span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
               <Package className="w-4 h-4" />
@@ -156,15 +158,15 @@ export const FarmerDashboard: React.FC = () => {
             {stats?.activeProducts || 0}
           </span>
           <span className="text-[11px] text-gray-500 font-medium block">
-            {stats?.totalProducts || 0} total harvests listed
+            {stats?.totalProducts || 0} {t('farmer.totalProducts')}
           </span>
         </div>
 
         {/* Farm Rating */}
         <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Farm Rating
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              {t('product.rating')}
             </span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
               <Star className="w-4 h-4 fill-current" />
@@ -173,7 +175,7 @@ export const FarmerDashboard: React.FC = () => {
           <span className="text-2xl sm:text-3xl font-black text-gray-900">
             {stats?.rating ? stats.rating.toFixed(1) : '5.0'} ⭐
           </span>
-          <span className="text-[11px] text-brand-700 font-semibold block">Consumer Satisfaction</span>
+          <span className="text-[11px] text-emerald-800 font-semibold block">{t('home.customerSatisfaction')}</span>
         </div>
       </div>
 
@@ -183,17 +185,17 @@ export const FarmerDashboard: React.FC = () => {
         <div className="lg:col-span-8 bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex items-center justify-between pb-4 border-b border-gray-100">
             <div>
-              <h2 className="text-base font-bold text-gray-900">Recent Customer Orders</h2>
-              <p className="text-xs text-gray-500">Update fulfillment status directly</p>
+              <h2 className="text-base font-bold text-gray-900">{t('farmer.incomingOrders')}</h2>
+              <p className="text-xs text-gray-500">{t('farmer.dashboardSubtitle')}</p>
             </div>
-            <Link to="/farmer/orders" className="text-xs font-bold text-brand-700 hover:underline">
-              View All Orders →
+            <Link to="/farmer/orders" className="text-xs font-bold text-emerald-700 hover:underline">
+              {t('common.viewAll')} →
             </Link>
           </div>
 
           {data?.recentOrders.length === 0 ? (
             <div className="text-center py-10 text-xs text-gray-400">
-              No orders received yet. Keep your produce inventory updated!
+              {t('farmer.noOrders')}
             </div>
           ) : (
             <div className="divide-y divide-gray-100 overflow-x-auto">
@@ -231,11 +233,11 @@ export const FarmerDashboard: React.FC = () => {
 
                   {/* Status Dropdown */}
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-gray-400 font-medium">Update:</span>
+                    <span className="text-[11px] text-gray-400 font-medium">{t('common.status')}:</span>
                     <select
                       value={item.order?.orderStatus || 'PENDING'}
                       onChange={(e) => handleUpdateStatus(item.orderId, e.target.value)}
-                      className="bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-gray-800 outline-none focus:border-brand-500 cursor-pointer"
+                      className="bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-gray-800 outline-none focus:border-emerald-500 cursor-pointer"
                     >
                       <option value="PENDING">PENDING</option>
                       <option value="CONFIRMED">CONFIRMED</option>
@@ -254,9 +256,9 @@ export const FarmerDashboard: React.FC = () => {
         {/* Right: Quick Inventory List (4 cols) */}
         <div className="lg:col-span-4 bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-5">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-            <h3 className="text-sm font-bold text-gray-900">Your Harvest Listings</h3>
-            <Link to="/farmer/products" className="text-xs font-bold text-brand-600 hover:underline">
-              Manage
+            <h3 className="text-sm font-bold text-gray-900">{t('farmer.myProductsTitle')}</h3>
+            <Link to="/farmer/products" className="text-xs font-bold text-emerald-700 hover:underline">
+              {t('common.viewAll')}
             </Link>
           </div>
 
@@ -293,9 +295,9 @@ export const FarmerDashboard: React.FC = () => {
 
           <Link
             to="/farmer/products/new"
-            className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-3 rounded-2xl shadow-md transition flex items-center justify-center gap-1.5"
+            className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-3 rounded-2xl shadow-md transition flex items-center justify-center gap-1.5"
           >
-            <Plus className="w-4 h-4" /> Add Another Product
+            <Plus className="w-4 h-4" /> {t('farmer.addNewProduct')}
           </Link>
         </div>
       </div>

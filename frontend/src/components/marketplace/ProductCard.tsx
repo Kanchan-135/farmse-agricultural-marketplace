@@ -14,6 +14,7 @@ import {
 import { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { getMediaUrl } from '../../services/api';
 
 interface ProductCardProps {
@@ -23,6 +24,7 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const isFavorited = isInWishlist(product.id);
@@ -59,8 +61,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     });
   };
 
+  const translatedUnit = t(`common.${product.unit}`) !== `common.${product.unit}` ? t(`common.${product.unit}`) : product.unit;
+
   return (
-    <div className="group relative bg-white rounded-2xl border border-gray-100/90 hover:border-brand-300 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden">
+    <div className="group relative bg-white rounded-2xl border border-gray-100/90 hover:border-emerald-300 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden">
       {/* Image Container & Floating Tags */}
       <Link to={`/products/${product.id}`} className="relative aspect-[4/3] overflow-hidden bg-gray-100 block">
         <img
@@ -87,7 +91,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
           {product.isOrganic && (
             <span className="inline-flex items-center gap-1 bg-emerald-600/95 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
-              <Leaf className="w-3 h-3" /> Organic
+              <Leaf className="w-3 h-3" /> {t('common.organic')}
             </span>
           )}
           {discountPercent && (
@@ -101,8 +105,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
           {product.harvestDate ? (
             <span className="inline-flex items-center gap-1 bg-black/60 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md">
-              <Calendar className="w-3 h-3 text-brand-400" />
-              Harvested {new Date(product.harvestDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+              <Calendar className="w-3 h-3 text-emerald-400" />
+              {t('marketplace.harvestDate')} {new Date(product.harvestDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
             </span>
           ) : (
             <span />
@@ -115,7 +119,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 : 'bg-rose-950/80 text-rose-300'
             }`}
           >
-            {product.isAvailable && product.quantity > 0 ? `${product.quantity} ${product.unit} left` : 'Sold Out'}
+            {product.isAvailable && product.quantity > 0 ? `${product.quantity} ${translatedUnit}` : t('product.outOfStock')}
           </span>
         </div>
       </Link>
@@ -125,10 +129,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div>
           {/* Farmer & Location Metadata */}
           <div className="flex items-center justify-between gap-1 text-[11px] text-gray-500 mb-1.5">
-            <span className="flex items-center gap-1 font-medium text-brand-800 truncate">
-              {product.farmer?.farmerProfile?.farmName || product.farmer?.name || 'Verified Farmer'}
+            <span className="flex items-center gap-1 font-medium text-emerald-800 truncate">
+              {product.farmer?.farmerProfile?.farmName || product.farmer?.name || t('common.verified')}
               {product.farmer?.farmerProfile?.isVerified !== false && (
-                <CheckCircle2 className="w-3 h-3 text-brand-600 shrink-0 inline" />
+                <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0 inline" />
               )}
             </span>
             <span className="flex items-center gap-0.5 text-gray-400 shrink-0">
@@ -139,7 +143,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* Title */}
           <Link to={`/products/${product.id}`}>
-            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-brand-700 transition leading-snug">
+            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-emerald-700 transition leading-snug">
               {product.name}
             </h3>
           </Link>
@@ -163,7 +167,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className="flex items-baseline justify-between mb-3">
             <div>
               <span className="text-lg font-bold text-gray-900">₹{product.price}</span>
-              <span className="text-xs text-gray-500 font-medium ml-0.5">/{product.unit}</span>
+              <span className="text-xs text-gray-500 font-medium ml-0.5">/{translatedUnit}</span>
               {product.originalPrice && product.originalPrice > product.price && (
                 <span className="text-xs text-gray-400 line-through ml-2">
                   ₹{product.originalPrice}
@@ -176,18 +180,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <button
               onClick={handleAddToCart}
               disabled={!product.isAvailable || product.quantity <= 0}
-              className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-brand-600 text-brand-700 hover:bg-brand-50 disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent text-xs font-bold transition active:scale-95"
+              className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-emerald-700 text-emerald-800 hover:bg-emerald-50 disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent text-xs font-bold transition active:scale-95"
             >
               <ShoppingCart className="w-3.5 h-3.5" />
-              Add
+              {t('marketplace.addToCart')}
             </button>
             <button
               onClick={handleBuyNow}
               disabled={!product.isAvailable || product.quantity <= 0}
-              className="w-full flex items-center justify-center gap-1 py-2 px-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:bg-gray-200 disabled:text-gray-400 text-white text-xs font-bold shadow-sm shadow-brand-600/20 transition active:scale-95"
+              className="w-full flex items-center justify-center gap-1 py-2 px-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-200 disabled:text-gray-400 text-white text-xs font-bold shadow-sm shadow-emerald-700/20 transition active:scale-95"
             >
               <Zap className="w-3.5 h-3.5 fill-current" />
-              Buy Now
+              {t('product.buyNow')}
             </button>
           </div>
         </div>

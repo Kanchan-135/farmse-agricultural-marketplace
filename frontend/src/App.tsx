@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { ToastProvider } from './context/ToastContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Common Components
 import { Navbar } from './components/common/Navbar';
@@ -48,9 +49,10 @@ export const App: React.FC = () => {
   return (
     <Router>
       <ToastProvider>
-        <AuthProvider>
-          <CartProvider>
-            <WishlistProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <CartProvider>
+              <WishlistProvider>
               <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
                 <Navbar />
                 <main className="flex-1 pb-16 md:pb-0">
@@ -215,8 +217,9 @@ export const App: React.FC = () => {
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>
-      </ToastProvider>
-    </Router>
+      </LanguageProvider>
+    </ToastProvider>
+  </Router>
   );
 };
 

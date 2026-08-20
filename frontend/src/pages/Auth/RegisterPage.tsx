@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Sprout, Lock, Mail, User as UserIcon, Phone, MapPin, Tractor, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { Role } from '../../types';
 
 export const RegisterPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { register } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [role, setRole] = useState<Role>((searchParams.get('role') as Role) || 'CUSTOMER');
@@ -32,21 +34,21 @@ export const RegisterPage: React.FC = () => {
     setLoading(true);
 
     const payload: any = {
-      name,
-      email,
+      name: name.trim(),
+      email: email.trim(),
       password,
       role,
-      phone,
-      address,
-      city,
-      state,
-      pincode,
+      phone: phone.trim() || undefined,
+      address: address.trim() || undefined,
+      city: city.trim() || undefined,
+      state: state.trim() || undefined,
+      pincode: pincode.trim() || undefined,
     };
 
     if (role === 'FARMER') {
-      payload.farmName = farmName || `${name}'s Farm`;
-      payload.bio = bio;
-      payload.location = `${city}, ${state}` || 'Local Farm';
+      payload.farmName = farmName.trim() || `${name}'s Farm`;
+      payload.bio = bio.trim() || undefined;
+      payload.location = city.trim() ? `${city.trim()}, ${state.trim() || 'India'}` : 'Local Farm';
       payload.farmSizeAcres = Number(farmSizeAcres);
       payload.experienceYears = Number(experienceYears);
     }
@@ -66,15 +68,15 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-[85vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-xl text-center space-y-2">
         <Link to="/" className="inline-flex items-center gap-2 group">
-          <div className="w-12 h-12 rounded-2xl bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-600/30 group-hover:scale-105 transition-transform">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-700 text-white flex items-center justify-center shadow-lg shadow-emerald-700/30 group-hover:scale-105 transition-transform">
             <Sprout className="w-7 h-7" />
           </div>
           <span className="text-3xl font-extrabold text-gray-900">
-            Farm<span className="text-brand-600">se</span>
+            Farm<span className="text-emerald-600">se</span>
           </span>
         </Link>
-        <h2 className="text-xl font-extrabold text-gray-900">Create Your Account</h2>
-        <p className="text-xs text-gray-500">Join the smart direct-from-farm ecosystem</p>
+        <h2 className="text-xl font-extrabold text-gray-900">{t('auth.registerTitle')}</h2>
+        <p className="text-xs text-gray-500">{t('auth.registerSubtitle')}</p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
@@ -91,7 +93,7 @@ export const RegisterPage: React.FC = () => {
               }`}
             >
               <UserIcon className="w-4 h-4" />
-              I'm a Customer / Buyer
+              {t('auth.roleCustomer').split('(')[0]}
             </button>
             <button
               type="button"
@@ -103,7 +105,7 @@ export const RegisterPage: React.FC = () => {
               }`}
             >
               <Tractor className="w-4 h-4" />
-              I'm a Farmer / Producer
+              {t('auth.roleFarmer').split('(')[0]}
             </button>
           </div>
 
@@ -111,61 +113,61 @@ export const RegisterPage: React.FC = () => {
             {/* Account Credentials */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">Full Name</label>
+                <label className="font-bold text-gray-700">{t('auth.nameLabel')}</label>
                 <div className="relative">
                   <input
                     type="text"
                     required
-                    placeholder="Full name"
+                    placeholder={t('auth.namePlaceholder')}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                    className="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                   />
                   <UserIcon className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">Email Address</label>
+                <label className="font-bold text-gray-700">{t('auth.emailLabel')}</label>
                 <div className="relative">
                   <input
                     type="email"
                     required
-                    placeholder="you@domain.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                    className="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                   />
                   <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">Password (min. 6 characters)</label>
+                <label className="font-bold text-gray-700">{t('auth.passwordLabel')}</label>
                 <div className="relative">
                   <input
                     type="password"
                     required
                     minLength={6}
-                    placeholder="••••••••"
+                    placeholder={t('auth.passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                    className="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                   />
                   <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">Phone Number</label>
+                <label className="font-bold text-gray-700">{t('auth.phoneLabel')}</label>
                 <div className="relative">
                   <input
                     type="text"
                     required
-                    placeholder="+91 98..."
+                    placeholder={t('auth.phonePlaceholder')}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                    className="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                   />
                   <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
@@ -175,43 +177,43 @@ export const RegisterPage: React.FC = () => {
             {/* Address fields */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-2">
               <div className="sm:col-span-3 space-y-1">
-                <label className="font-bold text-gray-700">Address</label>
+                <label className="font-bold text-gray-700">{t('auth.addressLabel')}</label>
                 <input
                   type="text"
-                  placeholder="Street / Area / Farm address"
+                  placeholder="House, Street, Area"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                 />
               </div>
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">City</label>
+                <label className="font-bold text-gray-700">{t('auth.cityLabel')}</label>
                 <input
                   type="text"
                   placeholder="City"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                 />
               </div>
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">State</label>
+                <label className="font-bold text-gray-700">{t('auth.stateLabel')}</label>
                 <input
                   type="text"
                   placeholder="State"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                 />
               </div>
               <div className="space-y-1">
-                <label className="font-bold text-gray-700">Pincode</label>
+                <label className="font-bold text-gray-700">{t('auth.pincodeLabel')}</label>
                 <input
                   type="text"
                   placeholder="Pincode"
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
-                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                  className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
                 />
               </div>
             </div>
@@ -221,15 +223,15 @@ export const RegisterPage: React.FC = () => {
               <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-3 text-xs pt-3 animate-slide-down">
                 <h3 className="font-bold text-amber-950 flex items-center gap-1.5">
                   <Tractor className="w-4 h-4 text-amber-600" />
-                  Farm & Production Details
+                  {t('auth.farmerDetailsTitle')}
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-bold text-gray-700">Farm / Orchard Name</label>
+                    <label className="font-bold text-gray-700">{t('auth.farmNameLabel')}</label>
                     <input
                       type="text"
-                      placeholder="e.g. Patel Organic Orchards"
+                      placeholder={t('auth.farmNamePlaceholder')}
                       value={farmName}
                       onChange={(e) => setFarmName(e.target.value)}
                       className="w-full p-2.5 bg-white rounded-xl border border-amber-200 outline-none"
@@ -237,7 +239,7 @@ export const RegisterPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-bold text-gray-700">Total Farm Size (Acres)</label>
+                    <label className="font-bold text-gray-700">{t('auth.farmSizeLabel')}</label>
                     <input
                       type="number"
                       min={0.5}
@@ -249,10 +251,10 @@ export const RegisterPage: React.FC = () => {
                   </div>
 
                   <div className="sm:col-span-2 space-y-1">
-                    <label className="font-bold text-gray-700">Farming Bio / Specialty</label>
+                    <label className="font-bold text-gray-700">{t('auth.bioLabel')}</label>
                     <input
                       type="text"
-                      placeholder="e.g. Naturally grown heirloom crops, zero budget regenerative farming..."
+                      placeholder={t('auth.bioPlaceholder')}
                       value={bio}
                       onChange={(e) => setBio(e.target.value)}
                       className="w-full p-2.5 bg-white rounded-xl border border-amber-200 outline-none"
@@ -268,18 +270,18 @@ export const RegisterPage: React.FC = () => {
               className={`w-full text-white font-bold text-xs py-4 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 ${
                 role === 'FARMER'
                   ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/30'
-                  : 'bg-brand-600 hover:bg-brand-700 shadow-brand-600/30'
+                  : 'bg-emerald-700 hover:bg-emerald-800 shadow-emerald-700/30'
               }`}
             >
-              {loading ? 'Registering...' : `Join FarmSe as ${role === 'FARMER' ? 'Producer' : 'Customer'}`}
+              {loading ? t('common.loading') : t('auth.registerButton')}
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
           <div className="text-center text-xs text-gray-500">
-            Already have an account?{' '}
-            <Link to="/login" className="font-bold text-brand-600 hover:underline">
-              Sign In Here
+            {t('auth.haveAccount')}{' '}
+            <Link to="/login" className="font-bold text-emerald-700 hover:underline">
+              {t('auth.loginButton')}
             </Link>
           </div>
         </div>

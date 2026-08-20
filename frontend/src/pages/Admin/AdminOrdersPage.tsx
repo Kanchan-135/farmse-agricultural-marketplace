@@ -3,6 +3,7 @@ import { ShoppingBag, Truck, MapPin, Search, RefreshCw, AlertCircle, CheckCircle
 import { adminApi } from '../../services/api';
 import { Order } from '../../types';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from '../../context/LanguageContext';
 
 export const AdminOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -13,6 +14,7 @@ export const AdminOrdersPage: React.FC = () => {
   const [refundReason, setRefundReason] = useState<string>('');
   const [showRefundModal, setShowRefundModal] = useState<boolean>(false);
   const { success, error: toastError } = useToast();
+  const { t } = useTranslation();
 
   const fetchOrders = async () => {
     try {
@@ -39,7 +41,7 @@ export const AdminOrdersPage: React.FC = () => {
       setUpdatingId(orderId);
       const res = await adminApi.updateOrderStatus(orderId, { orderStatus: newStatus });
       if (res.data.success) {
-        success(`Order status updated to ${newStatus}`);
+        success(t('toasts.statusUpdated'));
         setOrders((prev) =>
           prev.map((o) => (o.id === orderId ? { ...o, orderStatus: newStatus as any } : o))
         );
@@ -59,7 +61,7 @@ export const AdminOrdersPage: React.FC = () => {
         refundReason: refundReason || 'Approved by administrator',
       });
       if (res.data.success) {
-        success(`Refund processed for order #${selectedOrder.orderNumber}`);
+        success(t('toasts.refundProcessed'));
         setShowRefundModal(false);
         setRefundReason('');
         setSelectedOrder(null);
@@ -79,10 +81,10 @@ export const AdminOrdersPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-            Platform Orders & Administrative Control
+            {t('admin.ordersTitle')}
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            Super Administrator permissions: Override status, confirm orders, execute cancellations & refunds.
+            {t('admin.subtitle')}
           </p>
         </div>
         <button
@@ -90,7 +92,7 @@ export const AdminOrdersPage: React.FC = () => {
           className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-2xl hover:bg-gray-50 transition self-start sm:self-auto shadow-sm"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          Refresh Orders
+          {t('common.reset')}
         </button>
       </div>
 
@@ -106,7 +108,7 @@ export const AdminOrdersPage: React.FC = () => {
                 : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
             }`}
           >
-            {s}
+            {s === 'ALL' ? t('common.all') : s}
           </button>
         ))}
       </div>
@@ -114,21 +116,21 @@ export const AdminOrdersPage: React.FC = () => {
       {/* Orders Table */}
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-xs text-gray-400">Loading all platform orders...</div>
+          <div className="p-12 text-center text-xs text-gray-400 font-bold">{t('common.loading')}</div>
         ) : orders.length === 0 ? (
-          <div className="p-12 text-center text-xs text-gray-400">No orders found matching filter.</div>
+          <div className="p-12 text-center text-xs text-gray-400">{t('orders.noOrdersTitle')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-gray-50 text-gray-500 font-bold uppercase tracking-wider text-[10px] border-b border-gray-100">
                 <tr>
-                  <th className="py-4 px-6">Order ID & Date</th>
-                  <th className="py-4 px-4">Customer</th>
-                  <th className="py-4 px-4">Items / Produce</th>
-                  <th className="py-4 px-4">Total Amount</th>
-                  <th className="py-4 px-4">Payment</th>
-                  <th className="py-4 px-4">Change Status (Admin Override)</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
+                  <th className="py-4 px-6">{t('orders.orderId')} & {t('common.date')}</th>
+                  <th className="py-4 px-4">{t('nav.customerAccount')}</th>
+                  <th className="py-4 px-4">{t('cart.itemCount')}</th>
+                  <th className="py-4 px-4">{t('common.total')}</th>
+                  <th className="py-4 px-4">{t('orders.paymentStatus')}</th>
+                  <th className="py-4 px-4">{t('admin.statusOverride')}</th>
+                  <th className="py-4 px-6 text-right">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -150,7 +152,7 @@ export const AdminOrdersPage: React.FC = () => {
 
                     <td className="py-4 px-4">
                       <span className="font-semibold text-gray-700">
-                        {ord.items?.length || 0} harvest items
+                        {ord.items?.length || 0} {t('common.quantity')}
                       </span>
                     </td>
 
@@ -207,7 +209,7 @@ export const AdminOrdersPage: React.FC = () => {
                           className="px-2.5 py-1 text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 rounded-xl hover:bg-rose-100 transition inline-flex items-center gap-1"
                         >
                           <RotateCcw className="w-3 h-3" />
-                          Refund
+                          {t('admin.processRefund')}
                         </button>
                       )}
                     </td>
@@ -226,7 +228,7 @@ export const AdminOrdersPage: React.FC = () => {
             <div className="flex items-center gap-3 text-rose-600">
               <AlertCircle className="w-6 h-6" />
               <h3 className="font-bold text-gray-900 text-base">
-                Process Administrative Refund
+                {t('admin.refundModalTitle')}
               </h3>
             </div>
             <p className="text-xs text-gray-600">
@@ -235,7 +237,7 @@ export const AdminOrdersPage: React.FC = () => {
             </p>
             <div>
               <label className="block text-[11px] font-bold text-gray-700 mb-1">
-                Reason / Note:
+                {t('admin.refundReasonLabel')}:
               </label>
               <textarea
                 value={refundReason}
@@ -252,14 +254,14 @@ export const AdminOrdersPage: React.FC = () => {
                 }}
                 className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-2xl transition"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 disabled={updatingId === selectedOrder.id}
                 onClick={handleRefundSubmit}
                 className="px-4 py-2 text-xs font-bold bg-rose-600 text-white rounded-2xl hover:bg-rose-700 transition shadow-md shadow-rose-600/20"
               >
-                Confirm Refund
+                {t('admin.confirmRefundButton')}
               </button>
             </div>
           </div>

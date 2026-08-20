@@ -15,11 +15,13 @@ import {
 import { productApi, categoryApi, uploadApi } from '../../services/api';
 import { Category } from '../../types';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from '../../context/LanguageContext';
 
 export const FarmerAddEditProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { success, error: toastError } = useToast();
+  const { t } = useTranslation();
   const isEditing = !!id;
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -114,7 +116,6 @@ export const FarmerAddEditProductPage: React.FC = () => {
     }
 
     if (images.length === 0) {
-      // Add default image if none provided
       images.push('https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80');
     }
 
@@ -150,86 +151,92 @@ export const FarmerAddEditProductPage: React.FC = () => {
     }
   };
 
+  const getCategoryName = (slug: string, defaultName: string) => {
+    const translationKey = `categories.${slug}`;
+    const translated = t(translationKey);
+    return translated !== translationKey ? translated : defaultName;
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div className="flex items-center justify-between">
         <Link
           to="/farmer/products"
-          className="text-xs font-bold text-gray-500 hover:text-brand-700 flex items-center gap-1.5 transition"
+          className="text-xs font-bold text-gray-500 hover:text-emerald-700 flex items-center gap-1.5 transition"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Inventory
+          <ArrowLeft className="w-4 h-4" /> {t('common.back')} {t('farmer.myProductsTitle')}
         </Link>
         <span className="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-3 py-1 rounded-full">
-          {isEditing ? 'Editing Harvest Listing' : 'New Harvest Registration'}
+          {isEditing ? t('farmer.editProduct') : t('farmer.addNewProduct')}
         </span>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-10 shadow-sm space-y-8">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900">
-            {isEditing ? 'Edit Agricultural Produce' : 'List New Farm Harvest'}
+            {isEditing ? t('farmer.editProduct') : t('farmer.addNewProduct')}
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            Provide transparent product details so customers can understand your soil origin and freshness.
+            {t('home.heroSubtitle')}
           </p>
         </div>
 
         {/* 1. Core Information */}
         <div className="space-y-4">
           <h2 className="text-sm font-bold text-gray-900 pb-2 border-b border-gray-100">
-            1. Produce Overview
+            1. {t('product.harvestDetails')}
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div className="sm:col-span-2 space-y-1">
-              <label className="font-bold text-gray-700">Crop / Produce Name *</label>
+              <label className="font-bold text-gray-700">{t('farmer.productName')} *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Organic Ratnagiri Alphonso Mangoes"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-gray-700">Category *</label>
+              <label className="font-bold text-gray-700">{t('farmer.category')} *</label>
               <select
                 required
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none cursor-pointer"
+                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none cursor-pointer"
               >
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name}
+                    {getCategoryName(c.slug, c.name)}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-gray-700">Farming Location / State *</label>
+              <label className="font-bold text-gray-700">{t('common.location')} *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Nashik, Maharashtra"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
               />
             </div>
 
             <div className="sm:col-span-2 space-y-1">
-              <label className="font-bold text-gray-700">Detailed Description & Taste Profile *</label>
+              <label className="font-bold text-gray-700">{t('product.harvestDetails')} *</label>
               <textarea
                 required
                 rows={4}
                 placeholder="Describe how the produce is grown, flavor profile, organic fertilizers used, storage recommendations..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-brand-500 outline-none"
+                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:border-emerald-500 outline-none"
               />
             </div>
           </div>
@@ -238,12 +245,12 @@ export const FarmerAddEditProductPage: React.FC = () => {
         {/* 2. Pricing & Stock */}
         <div className="space-y-4 pt-2">
           <h2 className="text-sm font-bold text-gray-900 pb-2 border-b border-gray-100">
-            2. Price & Harvest Inventory
+            2. {t('farmer.pricePerUnit')} & {t('farmer.stockQuantity')}
           </h2>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
             <div className="space-y-1">
-              <label className="font-bold text-gray-700">Price (₹) *</label>
+              <label className="font-bold text-gray-700">{t('common.price')} (₹) *</label>
               <input
                 type="number"
                 required
@@ -267,7 +274,7 @@ export const FarmerAddEditProductPage: React.FC = () => {
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-gray-700">Quantity In Stock *</label>
+              <label className="font-bold text-gray-700">{t('farmer.stockQuantity')} *</label>
               <input
                 type="number"
                 required
@@ -280,23 +287,23 @@ export const FarmerAddEditProductPage: React.FC = () => {
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-gray-700">Measurement Unit *</label>
+              <label className="font-bold text-gray-700">{t('farmer.unitSelect')} *</label>
               <select
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
                 className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 font-bold cursor-pointer"
               >
-                <option value="kg">kg (Kilogram)</option>
-                <option value="quintal">quintal (100 kg)</option>
-                <option value="litre">litre (Liquid/Milk/Ghee)</option>
-                <option value="dozen">dozen (12 pcs)</option>
-                <option value="pack">pack</option>
-                <option value="crate">crate</option>
+                <option value="kg">{t('common.kg')}</option>
+                <option value="quintal">{t('common.quintal')}</option>
+                <option value="litre">{t('common.litre')}</option>
+                <option value="dozen">{t('common.dozen')}</option>
+                <option value="pack">{t('common.pack')}</option>
+                <option value="crate">{t('common.crate')}</option>
               </select>
             </div>
 
             <div className="sm:col-span-2 space-y-1">
-              <label className="font-bold text-gray-700">Harvest Date</label>
+              <label className="font-bold text-gray-700">{t('marketplace.harvestDate')}</label>
               <input
                 type="date"
                 value={harvestDate}
@@ -311,9 +318,9 @@ export const FarmerAddEditProductPage: React.FC = () => {
                   type="checkbox"
                   checked={isOrganic}
                   onChange={(e) => setIsOrganic(e.target.checked)}
-                  className="w-4 h-4 text-emerald-600 rounded accent-brand-600"
+                  className="w-4 h-4 text-emerald-600 rounded accent-emerald-600"
                 />
-                🌱 Certified Organic
+                🌱 {t('common.organic')}
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer font-bold text-gray-800">
@@ -321,9 +328,9 @@ export const FarmerAddEditProductPage: React.FC = () => {
                   type="checkbox"
                   checked={isAvailable}
                   onChange={(e) => setIsAvailable(e.target.checked)}
-                  className="w-4 h-4 text-brand-600 rounded accent-brand-600"
+                  className="w-4 h-4 text-emerald-700 rounded accent-emerald-600"
                 />
-                Available For Sale
+                {t('marketplace.inStockOnly')}
               </label>
             </div>
           </div>
@@ -332,7 +339,7 @@ export const FarmerAddEditProductPage: React.FC = () => {
         {/* 3. Product Media */}
         <div className="space-y-4 pt-2">
           <h2 className="text-sm font-bold text-gray-900 pb-2 border-b border-gray-100">
-            3. Produce Photos & Media
+            3. {t('farmer.uploadImages')}
           </h2>
 
           <div className="space-y-3 text-xs">
@@ -355,9 +362,9 @@ export const FarmerAddEditProductPage: React.FC = () => {
 
             {/* Local upload option */}
             <div className="flex items-center gap-3">
-              <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-brand-400 bg-brand-50/50 hover:bg-brand-50 text-brand-700 font-bold cursor-pointer transition">
+              <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-emerald-400 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-800 font-bold cursor-pointer transition">
                 <Upload className="w-4 h-4" />
-                <span>{uploading ? 'Uploading...' : 'Or Upload Local Photo (JPG/PNG)'}</span>
+                <span>{uploading ? t('common.loading') : 'Or Upload Local Photo (JPG/PNG)'}</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -394,14 +401,14 @@ export const FarmerAddEditProductPage: React.FC = () => {
             to="/farmer/products"
             className="px-6 py-3.5 rounded-2xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition"
           >
-            Cancel
+            {t('common.cancel')}
           </Link>
           <button
             type="submit"
             disabled={loading}
-            className="bg-brand-600 hover:bg-brand-700 disabled:bg-gray-300 text-white font-bold text-xs px-8 py-3.5 rounded-2xl shadow-md transition"
+            className="bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-300 text-white font-bold text-xs px-8 py-3.5 rounded-2xl shadow-md transition"
           >
-            {loading ? 'Saving...' : isEditing ? 'Update Produce Listing' : 'Publish Harvest To Marketplace'}
+            {loading ? t('common.loading') : isEditing ? t('farmer.editProduct') : t('farmer.addNewProduct')}
           </button>
         </div>
       </form>
