@@ -13,11 +13,27 @@ import {
   AdminStats,
 } from '../types';
 
+// Production Render backend endpoint for Native Android App
+const PRODUCTION_BACKEND_URL = 'https://farmse-agricultural-marketplace.onrender.com';
+
 // Dynamic API URL with smart formatting for Web & Android Capacitor deployment
 export const formatApiUrl = (url?: string): string => {
-  if (!url || url.trim() === '') return '/api';
-  const clean = url.trim().replace(/\/$/, '');
-  return clean.endsWith('/api') ? clean : `${clean}/api`;
+  if (url && url.trim() !== '') {
+    const clean = url.trim().replace(/\/$/, '');
+    return clean.endsWith('/api') ? clean : `${clean}/api`;
+  }
+  // If running inside Capacitor Native or Android WebView without explicit VITE_API_URL, default to Render backend
+  if (typeof window !== 'undefined') {
+    const isNative =
+      (window as any).Capacitor?.isNativePlatform?.() ||
+      window.location.protocol === 'capacitor:' ||
+      window.location.protocol === 'ionic:' ||
+      (window.location.hostname === 'localhost' && (window as any).Capacitor);
+    if (isNative) {
+      return `${PRODUCTION_BACKEND_URL}/api`;
+    }
+  }
+  return '/api';
 };
 
 const rawApiUrl = import.meta.env.VITE_API_URL;
@@ -32,11 +48,10 @@ export const getMediaUrl = (path?: string | null): string => {
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
     return path;
   }
-  if (rawApiUrl) {
-    const backendOrigin = rawApiUrl.replace(/\/api\/?$/, '');
-    return `${backendOrigin}${path.startsWith('/') ? '' : '/'}${path}`;
-  }
-  return path;
+  const backendOrigin = rawApiUrl
+    ? rawApiUrl.replace(/\/api\/?$/, '')
+    : PRODUCTION_BACKEND_URL;
+  return `${backendOrigin}${path.startsWith('/') ? '' : '/'}${path}`;
 };
 
 const api = axios.create({

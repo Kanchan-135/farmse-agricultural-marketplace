@@ -20,6 +20,14 @@ dist/
 build/
 *.tsbuildinfo
 
+# Android build artifacts & gradle caches
+.gradle/
+**/android/.gradle/
+**/android/app/build/
+**/android/build/
+**/android/capacitor-cordova-android-plugins/build/
+**/android/local.properties
+
 # Uploaded user media (keep folder via .gitkeep)
 backend/uploads/*
 !backend/uploads/.gitkeep
