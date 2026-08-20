@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local SQLite databases
+*.db
+*.db-journal
+prisma/dev.db
+prisma/dev.db-journal
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Logs
+*.log

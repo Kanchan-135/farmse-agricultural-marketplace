@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Production build output
+dist/
+dist-ssr/
+
+# Environment files
+.env
+.env.*
+!.env.example
+*.local
+
+# Logs
+*.log
+
+# Editor directories
+.vscode/
+.idea/
