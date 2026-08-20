@@ -13,26 +13,25 @@ export const BottomNav: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
 
+  // Hide BottomNav when unauthenticated or on auth screens
+  if (!isAuthenticated || ['/login', '/register', '/forgot-password'].includes(location.pathname)) {
+    return null;
+  }
+
   // Determine user hub link based on role
-  const profileLink = !isAuthenticated
-    ? '/login'
-    : isFarmer
+  const profileLink = isFarmer
     ? '/farmer/dashboard'
     : isAdmin
     ? '/admin/dashboard'
     : '/customer/dashboard';
 
-  const profileLabel = !isAuthenticated
-    ? t('nav.login')
-    : isFarmer
+  const profileLabel = isFarmer
     ? t('nav.farmerHub')
     : isAdmin
     ? t('nav.adminPanel')
     : t('nav.profile');
 
-  const ProfileIcon = !isAuthenticated
-    ? User
-    : isFarmer
+  const ProfileIcon = isFarmer
     ? Tractor
     : isAdmin
     ? ShieldCheck
@@ -40,7 +39,7 @@ export const BottomNav: React.FC = () => {
 
   return (
     <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-gray-200/80 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] safe-area-pb">
-      <div className="grid grid-cols-5 h-16 items-center px-1">
+      <div className="grid grid-cols-5 h-16 items-center px-1 max-w-full">
         {/* 1. Home */}
         <NavLink
           to="/"
@@ -139,3 +138,5 @@ export const BottomNav: React.FC = () => {
     </nav>
   );
 };
+
+export default BottomNav;

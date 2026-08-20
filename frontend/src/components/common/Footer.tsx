@@ -1,10 +1,14 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Sprout, ShieldCheck, Truck, RefreshCw, Award, Heart, Mail, Phone, MapPin } from 'lucide-react';
 import { useTranslation } from '../../context/LanguageContext';
 
 export const Footer: React.FC = () => {
   const { t } = useTranslation();
+  const location = useLocation();
+
+  if (['/login', '/register', '/forgot-password'].includes(location.pathname)) {
+    return null;
+  }
 
   return (
     <footer className="bg-gray-900 text-gray-300 pt-16 pb-12 border-t border-gray-800">

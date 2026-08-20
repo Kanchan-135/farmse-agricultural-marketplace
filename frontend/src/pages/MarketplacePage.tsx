@@ -230,13 +230,13 @@ export const MarketplacePage: React.FC = () => {
 
           {/* Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
               {[1, 2, 3, 4, 5, 6].map((n) => (
-                <div key={n} className="bg-white rounded-2xl h-80 animate-pulse border border-gray-100" />
+                <div key={n} className="bg-white rounded-2xl h-64 sm:h-80 animate-pulse border border-gray-100" />
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm space-y-4">
+            <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-gray-100 shadow-sm space-y-4">
               <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
                 <Sprout className="w-8 h-8" />
               </div>
@@ -249,7 +249,7 @@ export const MarketplacePage: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

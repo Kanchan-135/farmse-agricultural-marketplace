@@ -99,6 +99,10 @@ export const Navbar: React.FC = () => {
     }
   };
 
+  if (['/login', '/register', '/forgot-password'].includes(location.pathname)) {
+    return null;
+  }
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all safe-area-pt">
       {/* Top Banner for Farmer Direct Proposition */}

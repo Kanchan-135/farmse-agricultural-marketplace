@@ -56,11 +56,39 @@ const AppContent: React.FC = () => {
       <Navbar />
       <main className="flex-1 pb-16 md:pb-0 w-full max-w-full">
         <Routes>
-          {/* Public Marketplace & Home Routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/marketplace" element={<MarketplacePage />} />
-          <Route path="/products/:id" element={<ProductDetailsPage />} />
-          <Route path="/cart" element={<CartPage />} />
+          {/* Authenticated Marketplace & Home Routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <LandingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/marketplace"
+            element={
+              <ProtectedRoute>
+                <MarketplacePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/products/:id"
+            element={
+              <ProtectedRoute>
+                <ProductDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <CartPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Auth Routes */}
           <Route path="/login" element={<LoginPage />} />

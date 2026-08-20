@@ -125,10 +125,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </Link>
 
       {/* Product Content Details */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between">
         <div>
           {/* Farmer & Location Metadata */}
-          <div className="flex items-center justify-between gap-1 text-[11px] text-gray-500 mb-1.5">
+          <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-gray-500 mb-1">
             <span className="flex items-center gap-1 font-medium text-emerald-800 truncate">
               {product.farmer?.farmerProfile?.farmName || product.farmer?.name || t('common.verified')}
               {product.farmer?.farmerProfile?.isVerified !== false && (
@@ -143,55 +143,55 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* Title */}
           <Link to={`/products/${product.id}`}>
-            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-emerald-700 transition leading-snug">
+            <h3 className="text-xs sm:text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-emerald-700 transition leading-snug">
               {product.name}
             </h3>
           </Link>
 
           {/* Rating */}
-          <div className="flex items-center gap-1.5 mt-1.5">
+          <div className="flex items-center gap-1 mt-1">
             <div className="flex items-center text-amber-500">
-              <Star className="w-3.5 h-3.5 fill-current" />
+              <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
             </div>
-            <span className="text-xs font-bold text-gray-800">
+            <span className="text-[11px] sm:text-xs font-bold text-gray-800">
               {product.rating > 0 ? product.rating.toFixed(1) : '5.0'}
             </span>
-            <span className="text-[11px] text-gray-400">
+            <span className="text-[10px] sm:text-[11px] text-gray-400">
               ({product.reviewCount || 12})
             </span>
           </div>
         </div>
 
         {/* Pricing & CTA Controls */}
-        <div className="pt-3 mt-3 border-t border-gray-100">
-          <div className="flex items-baseline justify-between mb-3">
+        <div className="pt-2 sm:pt-3 mt-2 sm:mt-3 border-t border-gray-100">
+          <div className="flex items-baseline justify-between mb-2 sm:mb-3">
             <div>
-              <span className="text-lg font-bold text-gray-900">₹{product.price}</span>
-              <span className="text-xs text-gray-500 font-medium ml-0.5">/{translatedUnit}</span>
+              <span className="text-base sm:text-lg font-bold text-gray-900">₹{product.price}</span>
+              <span className="text-[11px] sm:text-xs text-gray-500 font-medium ml-0.5">/{translatedUnit}</span>
               {product.originalPrice && product.originalPrice > product.price && (
-                <span className="text-xs text-gray-400 line-through ml-2">
+                <span className="text-[10px] sm:text-xs text-gray-400 line-through ml-1.5">
                   ₹{product.originalPrice}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
             <button
               onClick={handleAddToCart}
               disabled={!product.isAvailable || product.quantity <= 0}
-              className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-emerald-700 text-emerald-800 hover:bg-emerald-50 disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent text-xs font-bold transition active:scale-95"
+              className="w-full flex items-center justify-center gap-1 py-2 px-1 sm:px-2.5 rounded-xl border border-emerald-700 text-emerald-800 hover:bg-emerald-50 disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent text-[11px] sm:text-xs font-bold transition active:scale-95 tap-active"
             >
-              <ShoppingCart className="w-3.5 h-3.5" />
-              {t('marketplace.addToCart')}
+              <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+              <span className="truncate">{t('marketplace.addToCart')}</span>
             </button>
             <button
               onClick={handleBuyNow}
               disabled={!product.isAvailable || product.quantity <= 0}
-              className="w-full flex items-center justify-center gap-1 py-2 px-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-200 disabled:text-gray-400 text-white text-xs font-bold shadow-sm shadow-emerald-700/20 transition active:scale-95"
+              className="w-full flex items-center justify-center gap-1 py-2 px-1 sm:px-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-200 disabled:text-gray-400 text-white text-[11px] sm:text-xs font-bold shadow-sm shadow-emerald-700/20 transition active:scale-95 tap-active"
             >
-              <Zap className="w-3.5 h-3.5 fill-current" />
-              {t('product.buyNow')}
+              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current shrink-0" />
+              <span className="truncate">{t('product.buyNow')}</span>
             </button>
           </div>
         </div>
