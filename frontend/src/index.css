@@ -5,20 +5,23 @@
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900 antialiased selection:bg-brand-500 selection:text-white;
+    overscroll-behavior-y: contain;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
   }
 }
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
@@ -34,16 +37,25 @@
   backdrop-filter: blur(10px);
 }
 
-/* Mobile Safe Areas */
+/* Mobile App Safe Areas for Notches & Gesture Bars */
 .safe-area-pb {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
 }
 .safe-area-pt {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* Touch & tap responsiveness */
-* {
-  -webkit-tap-highlight-color: transparent;
+/* Mobile Native Touch & Tap Feedback */
+.tap-active {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.tap-active:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
+/* Disable unwanted text selection on native mobile UI buttons */
+button, nav, a {
+  user-select: none;
+  -webkit-user-select: none;
+}

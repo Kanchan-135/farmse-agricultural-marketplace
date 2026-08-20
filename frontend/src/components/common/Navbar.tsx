@@ -100,7 +100,7 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all safe-area-pt">
       {/* Top Banner for Farmer Direct Proposition */}
       <div className="bg-emerald-950 text-emerald-100 text-xs py-1.5 px-4 hidden sm:flex justify-between items-center font-medium">
         <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
