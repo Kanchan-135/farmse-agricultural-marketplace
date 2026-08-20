@@ -3,6 +3,7 @@ import { execSync } from 'child_process';
 import app from './app';
 import { config } from './config';
 import prisma from './models/prisma';
+import { seedMarketplaceData } from './services/seedService';
 
 const startServer = async () => {
   try {
@@ -26,6 +27,13 @@ const startServer = async () => {
       } catch (migrateErr: any) {
         console.error('❌ Automatic schema migration execution failed:', migrateErr.message);
       }
+    }
+
+    // 3. Auto-seed marketplace categories and products if empty
+    try {
+      await seedMarketplaceData(prisma);
+    } catch (seedErr: any) {
+      console.error('⚠️ Auto-seeding notice:', seedErr.message);
     }
   } catch (error: any) {
     console.error('❌ Database connection failure on boot:', error.message);
