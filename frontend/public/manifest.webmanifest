@@ -2,10 +2,15 @@
   "name": "FarmSe - Direct Agricultural Marketplace",
   "short_name": "FarmSe",
   "description": "Direct farm-to-table agricultural marketplace connecting verified regional farmers and conscious consumers across India with zero middlemen.",
-  "id": "/",
-  "start_url": "/",
+  "id": "/?source=pwa",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "window-controls-overlay"
+  ],
   "orientation": "portrait-primary",
   "background_color": "#064e3b",
   "theme_color": "#047857",
@@ -19,8 +24,50 @@
   ],
   "icons": [
     {
+      "src": "/icons/icon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
       "type": "image/png",
       "purpose": "any"
     },
@@ -49,12 +96,28 @@
       "purpose": "any"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/icons/screenshot-narrow.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "FarmSe Mobile Marketplace"
+    },
+    {
+      "src": "/icons/screenshot-wide.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "FarmSe Agricultural Marketplace Desktop & Tablet"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Marketplace",
       "short_name": "Market",
       "description": "Browse today's direct farm harvest produce",
-      "url": "/marketplace",
+      "url": "/marketplace?source=pwa_shortcut",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",
@@ -66,7 +129,7 @@
       "name": "My Orders",
       "short_name": "Orders",
       "description": "Track your active farm orders & deliveries",
-      "url": "/customer/orders",
+      "url": "/customer/orders?source=pwa_shortcut",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",
@@ -78,7 +141,7 @@
       "name": "Farmer Hub",
       "short_name": "Farmer",
       "description": "Manage harvest listings and incoming orders",
-      "url": "/farmer/dashboard",
+      "url": "/farmer/dashboard?source=pwa_shortcut",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",
@@ -90,7 +153,7 @@
       "name": "Shopping Cart",
       "short_name": "Cart",
       "description": "View your farm basket items",
-      "url": "/cart",
+      "url": "/cart?source=pwa_shortcut",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",

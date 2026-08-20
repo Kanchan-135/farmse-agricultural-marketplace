@@ -13,6 +13,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/png" href="/icons/icon-192x192.png" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
     <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png" />
 
@@ -20,16 +21,28 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="alternate" type="application/json" href="/manifest.json" />
 
-    <!-- Android Chrome & PWA Theme Colors -->
+    <!-- Android Chrome & PWA Standalone Theme Colors -->
     <meta name="theme-color" content="#047857" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="application-name" content="FarmSe" />
+    <meta name="msapplication-TileColor" content="#064e3b" />
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
 
     <!-- Apple iOS Standalone Properties -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="FarmSe" />
     <meta name="format-detection" content="telephone=no" />
+
+    <!-- Early PWA Install Prompt Listener -->
+    <script>
+      window.__deferredPwaPrompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.__deferredPwaPrompt = e;
+        window.dispatchEvent(new CustomEvent('farmse:pwa-ready'));
+      });
+    </script>
 
     <!-- Google Fonts Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

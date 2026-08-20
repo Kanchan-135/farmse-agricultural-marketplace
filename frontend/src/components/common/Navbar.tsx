@@ -192,11 +192,11 @@ export const Navbar: React.FC = () => {
             {/* Language Selector Dropdown */}
             <LanguageSelector variant="navbar" />
 
-            {/* PWA Install Button on Desktop */}
-            {isInstallable && !isInstalled && (
+            {/* PWA Install Button on Desktop & Tablet */}
+            {!isInstalled && (
               <button
                 onClick={installApp}
-                className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-300 shadow-sm transition animate-fade-in"
+                className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-300 shadow-sm transition animate-fade-in"
                 title="Install FarmSe App"
               >
                 <Download className="w-3.5 h-3.5 text-emerald-700" />
@@ -446,7 +446,7 @@ export const Navbar: React.FC = () => {
 
             <LanguageSelector variant="mobile" />
 
-            {isInstallable && !isInstalled && (
+            {!isInstalled && (
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
