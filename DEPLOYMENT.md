@@ -97,7 +97,7 @@ This guide provides the exact step-by-step instructions to deploy **FarmSe** to 
    - **Branch**: `main`
    - **Build Command**:
      ```bash
-     npm install && npx prisma generate && npx prisma db push && npm run prisma:seed && npm run build
+     npm install --include=dev && npx prisma generate && npx prisma db push --accept-data-loss && npm run prisma:seed && npm run build
      ```
    - **Start Command**:
      ```bash

@@ -7,8 +7,20 @@ const startServer = async () => {
     // Verify database connectivity
     await prisma.$queryRaw`SELECT 1`;
     console.log('✅ Database connection verified successfully');
-  } catch (error) {
-    console.warn('⚠️ Database connection warning on boot:', error);
+
+    try {
+      const userCount = await prisma.user.count();
+      console.log(`📦 Database schema ready. Current user count: ${userCount}`);
+    } catch (schemaErr: any) {
+      console.error(
+        '⚠️ DATABASE TABLES MISSING: The PostgreSQL database is connected, but tables have not been created yet.',
+        'Please ensure "npx prisma db push" or "npx prisma migrate deploy" has executed.',
+        'Error:',
+        schemaErr.message
+      );
+    }
+  } catch (error: any) {
+    console.error('❌ Database connection failure on boot:', error.message);
   }
 
   const server = app.listen(config.port, () => {

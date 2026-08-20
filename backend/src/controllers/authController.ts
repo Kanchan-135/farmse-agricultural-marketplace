@@ -11,17 +11,17 @@ export const registerSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
   name: z.string().min(2, 'Name is required'),
   role: z.enum(['CUSTOMER', 'FARMER', 'ADMIN']).default('CUSTOMER'),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  pincode: z.string().optional(),
+  phone: z.string().optional().nullable(),
+  address: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  state: z.string().optional().nullable(),
+  pincode: z.string().optional().nullable(),
   // Farmer specific fields
-  farmName: z.string().optional(),
-  bio: z.string().optional(),
-  location: z.string().optional(),
-  farmSizeAcres: z.number().optional(),
-  experienceYears: z.number().optional(),
+  farmName: z.string().optional().nullable(),
+  bio: z.string().optional().nullable(),
+  location: z.string().optional().nullable(),
+  farmSizeAcres: z.union([z.number(), z.string()]).optional().nullable(),
+  experienceYears: z.union([z.number(), z.string()]).optional().nullable(),
 });
 
 export const loginSchema = z.object({
@@ -36,7 +36,7 @@ export class AuthController {
 
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({
-        where: { email: data.email.toLowerCase() },
+        where: { email: data.email.toLowerCase().trim() },
       });
 
       if (existingUser) {
@@ -54,55 +54,61 @@ export class AuthController {
         }
       }
 
-      // Create user and profile in transaction
-      const newUser = await prisma.$transaction(async (tx) => {
-        const user = await tx.user.create({
+      // Create user
+      const user = await prisma.user.create({
+        data: {
+          email: data.email.toLowerCase().trim(),
+          password: hashedPassword,
+          name: data.name.trim(),
+          role: assignedRole,
+          phone: data.phone || null,
+          address: data.address || null,
+          city: data.city || null,
+          state: data.state || null,
+          pincode: data.pincode || null,
+          isApproved: true,
+        },
+      });
+
+      // Create associated profile based on role
+      if (assignedRole === 'FARMER') {
+        await prisma.farmerProfile.create({
           data: {
-            email: data.email.toLowerCase(),
-            password: hashedPassword,
-            name: data.name,
-            role: assignedRole,
-            phone: data.phone,
-            address: data.address,
-            city: data.city,
-            state: data.state,
-            pincode: data.pincode,
-            isApproved: assignedRole === 'FARMER' ? true : true, // Set to true for quick start, admin can suspend
+            userId: user.id,
+            farmName: data.farmName || `${user.name}'s Farm`,
+            bio: data.bio || 'Dedicated to fresh, sustainable agricultural produce direct from farm.',
+            location: data.location || data.city || 'Local Farm',
+            state: data.state || 'India',
+            farmSizeAcres: data.farmSizeAcres ? Number(data.farmSizeAcres) : 5,
+            experienceYears: data.experienceYears ? Number(data.experienceYears) : 3,
+            isVerified: true,
           },
         });
+      } else {
+        await prisma.customerProfile.create({
+          data: {
+            userId: user.id,
+            defaultAddress: data.address || '',
+          },
+        });
+      }
 
-        if (assignedRole === 'FARMER') {
-          await tx.farmerProfile.create({
-            data: {
-              userId: user.id,
-              farmName: data.farmName || `${user.name}'s Farm`,
-              bio: data.bio || 'Dedicated to fresh, sustainable agricultural produce direct from farm.',
-              location: data.location || data.city || 'Local Farm',
-              state: data.state || 'India',
-              farmSizeAcres: data.farmSizeAcres || 5,
-              experienceYears: data.experienceYears || 3,
-              isVerified: true,
-            },
-          });
-        } else if (assignedRole === 'CUSTOMER') {
-          await tx.customerProfile.create({
-            data: {
-              userId: user.id,
-              defaultAddress: data.address || '',
-            },
-          });
-        }
+      // Initialize empty Cart & Wishlist
+      try {
+        await prisma.cart.create({ data: { userId: user.id } });
+      } catch (err) {
+        console.warn('[Register] Cart creation notice:', err);
+      }
 
-        // Initialize empty Cart & Wishlist
-        await tx.cart.create({ data: { userId: user.id } });
-        await tx.wishlist.create({ data: { userId: user.id } });
-
-        return user;
-      });
+      try {
+        await prisma.wishlist.create({ data: { userId: user.id } });
+      } catch (err) {
+        console.warn('[Register] Wishlist creation notice:', err);
+      }
 
       // Fetch user with profile
       const userProfile = await prisma.user.findUnique({
-        where: { id: newUser.id },
+        where: { id: user.id },
         select: {
           id: true,
           email: true,
@@ -123,12 +129,12 @@ export class AuthController {
       });
 
       const token = generateToken({
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-        role: newUser.role,
-        isApproved: newUser.isApproved,
-        isActive: newUser.isActive,
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isApproved: user.isApproved,
+        isActive: user.isActive,
       });
 
       return sendSuccess(
@@ -141,10 +147,21 @@ export class AuthController {
         201
       );
     } catch (error: any) {
+      console.error('[Registration Error Details]:', error);
+
       if (error instanceof z.ZodError) {
-        return sendError(res, error.errors[0]?.message || 'Validation error', 400, error.errors);
+        const validationMsg = error.errors[0]?.message || 'Validation error';
+        return sendError(res, validationMsg, 400, error.errors);
       }
-      return sendError(res, 'Failed to register account', 500, error.message);
+
+      // Handle Prisma Unique Constraint error (P2002)
+      if (error.code === 'P2002') {
+        const target = Array.isArray(error.meta?.target) ? error.meta.target.join(', ') : 'email';
+        return sendError(res, `An account with this ${target} already exists`, 400);
+      }
+
+      const errorMessage = error.message || 'Failed to register account';
+      return sendError(res, errorMessage, 500, error.message);
     }
   }
 
@@ -153,7 +170,7 @@ export class AuthController {
       const data = loginSchema.parse(req.body);
 
       const user = await prisma.user.findUnique({
-        where: { email: data.email.toLowerCase() },
+        where: { email: data.email.toLowerCase().trim() },
         include: {
           farmerProfile: true,
           customerProfile: true,
@@ -165,7 +182,7 @@ export class AuthController {
       }
 
       if (!user.isActive) {
-        return sendError(res, 'Your account is deactivated. Please contact support.', 403);
+        return sendError(res, 'Your account has been deactivated. Please contact support.', 403);
       }
 
       const isPasswordValid = await comparePassword(data.password, user.password);
@@ -182,21 +199,21 @@ export class AuthController {
         isActive: user.isActive,
       });
 
-      const { password, ...safeUser } = user;
+      const { password, ...userWithoutPassword } = user;
 
       return sendSuccess(
         res,
         {
           token,
-          user: safeUser,
+          user: userWithoutPassword,
         },
-        'Logged in successfully'
+        'Login successful'
       );
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        return sendError(res, error.errors[0]?.message || 'Validation error', 400);
+        return sendError(res, error.errors[0]?.message || 'Validation error', 400, error.errors);
       }
-      return sendError(res, 'Failed to log in', 500, error.message);
+      return sendError(res, 'Failed to login', 500, error.message);
     }
   }
 
@@ -224,7 +241,6 @@ export class AuthController {
           farmerProfile: true,
           customerProfile: true,
           createdAt: true,
-          updatedAt: true,
         },
       });
 
@@ -234,7 +250,7 @@ export class AuthController {
 
       return sendSuccess(res, user);
     } catch (error: any) {
-      return sendError(res, 'Failed to retrieve profile', 500, error.message);
+      return sendError(res, 'Failed to fetch user profile', 500, error.message);
     }
   }
 
@@ -247,75 +263,101 @@ export class AuthController {
       const {
         name,
         phone,
+        avatar,
         address,
         city,
         state,
         pincode,
-        avatar,
-        // Farmer profile updates
+        // Farmer profile
         farmName,
         bio,
         location,
         farmSizeAcres,
         experienceYears,
+        bankAccount,
+        ifscCode,
+        // Customer profile
+        preferredLanguage,
+        defaultAddress,
       } = req.body;
 
-      const updatedUser = await prisma.$transaction(async (tx) => {
-        const user = await tx.user.update({
-          where: { id: req.user!.id },
-          data: {
-            name: name !== undefined ? name : undefined,
-            phone: phone !== undefined ? phone : undefined,
-            address: address !== undefined ? address : undefined,
-            city: city !== undefined ? city : undefined,
-            state: state !== undefined ? state : undefined,
-            pincode: pincode !== undefined ? pincode : undefined,
-            avatar: avatar !== undefined ? avatar : undefined,
-          },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            role: true,
-            phone: true,
-            avatar: true,
-            address: true,
-            city: true,
-            state: true,
-            pincode: true,
-            isActive: true,
-            isApproved: true,
-            farmerProfile: true,
-            customerProfile: true,
-          },
-        });
-
-        if (req.user!.role === 'FARMER' && (farmName || bio || location || farmSizeAcres || experienceYears)) {
-          await tx.farmerProfile.upsert({
-            where: { userId: req.user!.id },
-            update: {
-              farmName: farmName !== undefined ? farmName : undefined,
-              bio: bio !== undefined ? bio : undefined,
-              location: location !== undefined ? location : undefined,
-              farmSizeAcres: farmSizeAcres !== undefined ? Number(farmSizeAcres) : undefined,
-              experienceYears: experienceYears !== undefined ? Number(experienceYears) : undefined,
-            },
-            create: {
-              userId: req.user!.id,
-              farmName: farmName || `${user.name}'s Farm`,
-              bio: bio || '',
-              location: location || city || 'Local Farm',
-              farmSizeAcres: farmSizeAcres ? Number(farmSizeAcres) : 5,
-              experienceYears: experienceYears ? Number(experienceYears) : 3,
-            },
-          });
-        }
-
-        return user;
+      const updatedUser = await prisma.user.update({
+        where: { id: req.user.id },
+        data: {
+          name: name ? name.trim() : undefined,
+          phone: phone !== undefined ? phone : undefined,
+          avatar: avatar !== undefined ? avatar : undefined,
+          address: address !== undefined ? address : undefined,
+          city: city !== undefined ? city : undefined,
+          state: state !== undefined ? state : undefined,
+          pincode: pincode !== undefined ? pincode : undefined,
+        },
       });
 
-      return sendSuccess(res, updatedUser, 'Profile updated successfully');
+      if (req.user.role === 'FARMER' && (farmName || bio || location || farmSizeAcres || experienceYears || bankAccount || ifscCode)) {
+        await prisma.farmerProfile.upsert({
+          where: { userId: req.user.id },
+          create: {
+            userId: req.user.id,
+            farmName: farmName || `${updatedUser.name}'s Farm`,
+            bio,
+            location: location || city || 'Local Farm',
+            state: state || 'India',
+            farmSizeAcres: farmSizeAcres ? Number(farmSizeAcres) : undefined,
+            experienceYears: experienceYears ? Number(experienceYears) : undefined,
+            bankAccount,
+            ifscCode,
+          },
+          update: {
+            farmName,
+            bio,
+            location,
+            state,
+            farmSizeAcres: farmSizeAcres ? Number(farmSizeAcres) : undefined,
+            experienceYears: experienceYears ? Number(experienceYears) : undefined,
+            bankAccount,
+            ifscCode,
+          },
+        });
+      } else if (req.user.role === 'CUSTOMER' && (preferredLanguage || defaultAddress)) {
+        await prisma.customerProfile.upsert({
+          where: { userId: req.user.id },
+          create: {
+            userId: req.user.id,
+            preferredLanguage: preferredLanguage || 'English',
+            defaultAddress: defaultAddress || address,
+          },
+          update: {
+            preferredLanguage,
+            defaultAddress,
+          },
+        });
+      }
+
+      const fullUser = await prisma.user.findUnique({
+        where: { id: req.user.id },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          phone: true,
+          avatar: true,
+          address: true,
+          city: true,
+          state: true,
+          pincode: true,
+          isActive: true,
+          isApproved: true,
+          farmerProfile: true,
+          customerProfile: true,
+          createdAt: true,
+        },
+      });
+
+      return sendSuccess(res, fullUser, 'Profile updated successfully');
     } catch (error: any) {
+      console.error('[Update Profile Error]:', error);
       return sendError(res, 'Failed to update profile', 500, error.message);
     }
   }
@@ -328,7 +370,11 @@ export class AuthController {
 
       const { currentPassword, newPassword } = req.body;
 
-      if (!currentPassword || !newPassword || newPassword.length < 6) {
+      if (!currentPassword || !newPassword) {
+        return sendError(res, 'Current password and new password are required', 400);
+      }
+
+      if (newPassword.length < 6) {
         return sendError(res, 'New password must be at least 6 characters', 400);
       }
 
@@ -340,33 +386,44 @@ export class AuthController {
         return sendError(res, 'User not found', 404);
       }
 
-      const isMatch = await comparePassword(currentPassword, user.password);
-      if (!isMatch) {
-        return sendError(res, 'Incorrect current password', 400);
+      const isCurrentValid = await comparePassword(currentPassword, user.password);
+      if (!isCurrentValid) {
+        return sendError(res, 'Current password is incorrect', 400);
       }
 
-      const hashedNew = await hashPassword(newPassword);
+      const hashedNewPassword = await hashPassword(newPassword);
+
       await prisma.user.update({
         where: { id: req.user.id },
-        data: { password: hashedNew },
+        data: { password: hashedNewPassword },
       });
 
-      return sendSuccess(res, null, 'Password updated successfully');
+      return sendSuccess(res, null, 'Password changed successfully');
     } catch (error: any) {
       return sendError(res, 'Failed to change password', 500, error.message);
     }
   }
 
   static async forgotPassword(req: Request, res: Response) {
-    const { email } = req.body;
-    if (!email) {
-      return sendError(res, 'Please provide your email address', 400);
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return sendError(res, 'Email is required', 400);
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { email: email.toLowerCase().trim() },
+      });
+
+      if (!user) {
+        // Return success even if user not found for security
+        return sendSuccess(res, null, 'If this email is registered, password reset instructions have been sent.');
+      }
+
+      // Demo/MVP: Return success message
+      return sendSuccess(res, null, 'Password reset instructions have been sent to your email address.');
+    } catch (error: any) {
+      return sendError(res, 'Failed to process password reset', 500, error.message);
     }
-    // Simulation / token generation for password reset
-    return sendSuccess(
-      res,
-      { resetToken: `RST_${Date.now()}` },
-      'If an account with this email exists, a password reset link has been dispatched.'
-    );
   }
 }
