@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, CheckCircle2, XCircle } from 'lucide-react';
+import { Users, Search, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 import { adminApi } from '../../services/api';
 import { User } from '../../types';
 import { useToast } from '../../context/ToastContext';
@@ -44,6 +44,21 @@ export const AdminUsersPage: React.FC = () => {
     }
   };
 
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!window.confirm(`Are you sure you want to permanently remove user "${userName}" from the platform?`)) {
+      return;
+    }
+    try {
+      const res = await adminApi.deleteUser(userId);
+      if (res.data.success) {
+        success(`User "${userName}" removed`);
+        fetchUsers();
+      }
+    } catch (err: any) {
+      toastError(err.response?.data?.error || 'Failed to delete user');
+    }
+  };
+
   const filtered = users.filter(
     (u) =>
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -57,7 +72,7 @@ export const AdminUsersPage: React.FC = () => {
           User Account Management
         </h1>
         <p className="text-xs text-gray-500 mt-1">
-          Review all registered customer, farmer, and admin accounts.
+          Review and manage all registered customer, farmer, and admin accounts across the platform.
         </p>
       </div>
 
@@ -108,7 +123,7 @@ export const AdminUsersPage: React.FC = () => {
                   <th className="py-4 px-4">Location</th>
                   <th className="py-4 px-4">Joined Date</th>
                   <th className="py-4 px-4">Account Status</th>
-                  <th className="py-4 px-6 text-right">Moderation</th>
+                  <th className="py-4 px-6 text-right">Administrative Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -176,18 +191,28 @@ export const AdminUsersPage: React.FC = () => {
                       </span>
                     </td>
 
-                    <td className="py-4 px-6 text-right">
+                    <td className="py-4 px-6 text-right space-x-2">
                       {u.role !== 'ADMIN' && (
-                        <button
-                          onClick={() => handleToggleStatus(u.id)}
-                          className={`px-3 py-1.5 rounded-xl font-bold transition text-[11px] ${
-                            u.isActive
-                              ? 'bg-rose-50 text-rose-700 hover:bg-rose-100'
-                              : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                          }`}
-                        >
-                          {u.isActive ? 'Deactivate' : 'Activate'}
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleToggleStatus(u.id)}
+                            className={`px-3 py-1.5 rounded-xl font-bold transition text-[11px] ${
+                              u.isActive
+                                ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
+                                : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+                            }`}
+                          >
+                            {u.isActive ? 'Deactivate' : 'Activate'}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(u.id, u.name)}
+                            className="px-2.5 py-1.5 rounded-xl font-bold transition text-[11px] bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 inline-flex items-center gap-1"
+                            title="Delete User"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Delete
+                          </button>
+                        </>
                       )}
                     </td>
                   </tr>

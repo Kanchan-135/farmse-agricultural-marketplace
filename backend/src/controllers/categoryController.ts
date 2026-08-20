@@ -92,4 +92,69 @@ export class CategoryController {
       return sendError(res, 'Failed to create category', 500, error.message);
     }
   }
+
+  static async update(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { name, description, image, icon } = req.body;
+
+      const existing = await prisma.category.findUnique({ where: { id } });
+      if (!existing) {
+        return sendError(res, 'Category not found', 404);
+      }
+
+      let slug = existing.slug;
+      if (name && name !== existing.name) {
+        slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const duplicate = await prisma.category.findFirst({
+          where: { slug, id: { not: id } },
+        });
+        if (duplicate) {
+          return sendError(res, 'A category with this updated name already exists', 400);
+        }
+      }
+
+      const updated = await prisma.category.update({
+        where: { id },
+        data: {
+          name: name || undefined,
+          slug,
+          description: description !== undefined ? description : undefined,
+          image: image !== undefined ? image : undefined,
+          icon: icon !== undefined ? icon : undefined,
+        },
+      });
+
+      return sendSuccess(res, updated, 'Category updated successfully');
+    } catch (error: any) {
+      return sendError(res, 'Failed to update category', 500, error.message);
+    }
+  }
+
+  static async delete(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const existing = await prisma.category.findUnique({
+        where: { id },
+        include: { _count: { select: { products: true } } },
+      });
+
+      if (!existing) {
+        return sendError(res, 'Category not found', 404);
+      }
+
+      if (existing._count.products > 0) {
+        return sendError(
+          res,
+          `Cannot delete category with ${existing._count.products} active products. Please reassign or delete products first.`,
+          400
+        );
+      }
+
+      await prisma.category.delete({ where: { id } });
+      return sendSuccess(res, null, 'Category removed successfully');
+    } catch (error: any) {
+      return sendError(res, 'Failed to delete category', 500, error.message);
+    }
+  }
 }

@@ -159,15 +159,24 @@ export const farmerApi = {
 export const adminApi = {
   getStats: () => api.get<ApiResponse<AdminStats>>('/admin/stats'),
   getUsers: (params?: any) => api.get<ApiResponse<User[]>>('/admin/users', { params }),
+  deleteUser: (id: string) => api.delete<ApiResponse<null>>(`/admin/users/${id}`),
   getAllFarmers: () => api.get<ApiResponse<any[]>>('/admin/farmers'),
   toggleUserStatus: (id: string) => api.patch<ApiResponse<User>>(`/admin/users/${id}/toggle-status`),
   toggleFarmerApproval: (id: string) =>
     api.patch<ApiResponse<{ isApproved: boolean }>>(`/admin/farmers/${id}/toggle-approval`),
   verifyFarmer: (farmerId: string, isVerified: boolean) =>
-    api.patch<ApiResponse<any>>(`/admin/farmers/${farmerId}/verify`, { isVerified }),
+    api.patch<ApiResponse<any>>(`/admin/farmers/${farmerId}/toggle-approval`),
   getOrders: (params?: any) => api.get<ApiResponse<Order[]>>('/admin/orders', { params }),
+  getOrderById: (id: string) => api.get<ApiResponse<Order>>(`/admin/orders/${id}`),
+  updateOrderStatus: (id: string, data: { orderStatus: string; paymentStatus?: string; notes?: string }) =>
+    api.patch<ApiResponse<Order>>(`/admin/orders/${id}/status`, data),
+  processRefund: (id: string, data: { refundReason: string; refundAmount?: number }) =>
+    api.post<ApiResponse<Order>>(`/admin/orders/${id}/refund`, data),
   getReviews: () => api.get<ApiResponse<Review[]>>('/admin/reviews'),
   deleteReview: (id: string) => api.delete<ApiResponse<null>>(`/admin/reviews/${id}`),
+  createCategory: (data: any) => api.post<ApiResponse<any>>('/categories', data),
+  updateCategory: (id: string, data: any) => api.put<ApiResponse<any>>(`/categories/${id}`, data),
+  deleteCategory: (id: string) => api.delete<ApiResponse<null>>(`/categories/${id}`),
 };
 
 // 10. Notifications API

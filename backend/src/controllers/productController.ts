@@ -264,9 +264,19 @@ export class ProductController {
 
       const data = productSchema.parse(req.body);
 
+      let targetFarmerId = req.user.id;
+      if (req.user.role === 'ADMIN' && req.body.farmerId) {
+        const targetUser = await prisma.user.findUnique({
+          where: { id: req.body.farmerId },
+        });
+        if (targetUser) {
+          targetFarmerId = targetUser.id;
+        }
+      }
+
       const product = await prisma.product.create({
         data: {
-          farmerId: req.user.id,
+          farmerId: targetFarmerId,
           categoryId: data.categoryId,
           name: data.name,
           description: data.description,

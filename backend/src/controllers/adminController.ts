@@ -2,6 +2,7 @@ import { Response } from 'express';
 import prisma from '../models/prisma';
 import { sendSuccess, sendError, sendPaginated } from '../utils/response';
 import { AuthenticatedRequest } from '../types';
+import { NotificationService } from '../services/notificationService';
 
 export class AdminController {
   static async getPlatformStats(req: AuthenticatedRequest, res: Response) {
@@ -139,6 +140,29 @@ export class AdminController {
     }
   }
 
+  static async deleteUser(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const user = await prisma.user.findUnique({ where: { id } });
+
+      if (!user) {
+        return sendError(res, 'User not found', 404);
+      }
+
+      if (user.role === 'ADMIN') {
+        const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
+        if (adminCount <= 1) {
+          return sendError(res, 'Cannot delete the primary platform administrator', 400);
+        }
+      }
+
+      await prisma.user.delete({ where: { id } });
+      return sendSuccess(res, null, 'User removed from platform');
+    } catch (error: any) {
+      return sendError(res, 'Failed to delete user', 500, error.message);
+    }
+  }
+
   static async toggleFarmerApproval(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
@@ -163,6 +187,16 @@ export class AdminController {
           data: { isVerified: newApprovalStatus },
         }),
       ]);
+
+      await NotificationService.create({
+        userId: id,
+        title: newApprovalStatus ? 'Farmer Account Approved! 🎉' : 'Account Status Updated',
+        message: newApprovalStatus
+          ? 'Your farmer account has been verified. You can now list and sell products on FarmSe.'
+          : 'Your farmer privileges have been suspended by the administrator.',
+        type: 'SYSTEM',
+        link: '/farmer/dashboard',
+      });
 
       return sendSuccess(
         res,
@@ -195,7 +229,7 @@ export class AdminController {
             items: {
               include: {
                 product: true,
-                farmer: { select: { id: true, name: true } },
+                farmer: { select: { id: true, name: true, phone: true } },
               },
             },
           },
@@ -208,6 +242,151 @@ export class AdminController {
       return sendPaginated(res, orders, total, pageNum, limitNum);
     } catch (error: any) {
       return sendError(res, 'Failed to fetch platform orders', 500, error.message);
+    }
+  }
+
+  static async getOrderById(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const order = await prisma.order.findFirst({
+        where: { OR: [{ id }, { orderNumber: id }] },
+        include: {
+          customer: { select: { id: true, name: true, email: true, phone: true, address: true, city: true, state: true } },
+          items: {
+            include: {
+              product: true,
+              farmer: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                  farmerProfile: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!order) {
+        return sendError(res, 'Order not found', 404);
+      }
+
+      return sendSuccess(res, order);
+    } catch (error: any) {
+      return sendError(res, 'Failed to fetch order details', 500, error.message);
+    }
+  }
+
+  static async updateOrderStatus(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const { orderStatus, paymentStatus, notes } = req.body;
+
+      const validStatuses = ['PENDING', 'CONFIRMED', 'PREPARING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+      if (orderStatus && !validStatuses.includes(orderStatus)) {
+        return sendError(res, `Invalid order status. Allowed: ${validStatuses.join(', ')}`, 400);
+      }
+
+      const existingOrder = await prisma.order.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+
+      if (!existingOrder) {
+        return sendError(res, 'Order not found', 404);
+      }
+
+      // If transition to CANCELLED from non-cancelled, restore product quantities
+      if (orderStatus === 'CANCELLED' && existingOrder.orderStatus !== 'CANCELLED') {
+        for (const item of existingOrder.items) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: { quantity: { increment: item.quantity } },
+          });
+        }
+      }
+
+      // Auto mark payment as COMPLETED if DELIVERED and COD
+      let newPaymentStatus = paymentStatus || existingOrder.paymentStatus;
+      if (orderStatus === 'DELIVERED' && existingOrder.paymentMethod === 'COD') {
+        newPaymentStatus = 'COMPLETED';
+      }
+
+      const updated = await prisma.order.update({
+        where: { id },
+        data: {
+          orderStatus: orderStatus || undefined,
+          paymentStatus: newPaymentStatus,
+          notes: notes !== undefined ? notes : undefined,
+        },
+        include: {
+          customer: { select: { id: true, name: true, email: true } },
+          items: { include: { product: true } },
+        },
+      });
+
+      // Send update notification to customer
+      await NotificationService.create({
+        userId: existingOrder.customerId,
+        title: `Order Status Updated: #${existingOrder.orderNumber}`,
+        message: `Your order status has been updated to "${orderStatus || existingOrder.orderStatus}".`,
+        type: 'ORDER',
+        link: `/customer/orders`,
+      });
+
+      return sendSuccess(res, updated, `Order #${updated.orderNumber} status updated to ${updated.orderStatus}`);
+    } catch (error: any) {
+      return sendError(res, 'Failed to update order status', 500, error.message);
+    }
+  }
+
+  static async handleRefund(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const { refundReason, refundAmount } = req.body;
+
+      const existingOrder = await prisma.order.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+
+      if (!existingOrder) {
+        return sendError(res, 'Order not found', 404);
+      }
+
+      // Restore inventory if not already cancelled
+      if (existingOrder.orderStatus !== 'CANCELLED') {
+        for (const item of existingOrder.items) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: { quantity: { increment: item.quantity } },
+          });
+        }
+      }
+
+      const updated = await prisma.order.update({
+        where: { id },
+        data: {
+          paymentStatus: 'REFUNDED',
+          orderStatus: 'CANCELLED',
+          notes: refundReason
+            ? `${existingOrder.notes || ''}\n[Admin Refund]: ${refundReason}`
+            : existingOrder.notes,
+        },
+      });
+
+      await NotificationService.create({
+        userId: existingOrder.customerId,
+        title: `Refund Processed for Order #${existingOrder.orderNumber}`,
+        message: `A refund of ₹${refundAmount || existingOrder.totalAmount} has been approved and processed. Reason: ${refundReason || 'Administrative approval'}.`,
+        type: 'ORDER',
+        link: `/customer/orders`,
+      });
+
+      return sendSuccess(res, updated, 'Refund processed successfully and order status updated to REFUNDED');
+    } catch (error: any) {
+      return sendError(res, 'Failed to process refund', 500, error.message);
     }
   }
 
