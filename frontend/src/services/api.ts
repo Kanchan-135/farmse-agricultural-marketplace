@@ -56,6 +56,7 @@ export const getMediaUrl = (path?: string | null): string => {
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 12000, // 12-second timeout to prevent infinite freezes
   headers: {
     'Content-Type': 'application/json',
   },
@@ -85,6 +86,11 @@ api.interceptors.response.use(
   }
 );
 
+// Memory Cache with 2-minute TTL for fast navigation
+let cachedCategories: { data: ApiResponse<Category[]>; timestamp: number } | null = null;
+let cachedFeatured: { data: ApiResponse<Product[]>; timestamp: number } | null = null;
+const CACHE_TTL_MS = 2 * 60 * 1000;
+
 // 1. Auth API
 export const authApi = {
   register: (data: any) => api.post<ApiResponse<{ token: string; user: User }>>('/auth/register', data),
@@ -98,16 +104,45 @@ export const authApi = {
 // 2. Products API
 export const productApi = {
   getAll: (params?: any) => api.get<ApiResponse<Product[]>>('/products', { params }),
-  getFeatured: () => api.get<ApiResponse<Product[]>>('/products/featured'),
+  getFeatured: async (forceRefresh: boolean = false) => {
+    const now = Date.now();
+    if (!forceRefresh && cachedFeatured && now - cachedFeatured.timestamp < CACHE_TTL_MS) {
+      return { data: cachedFeatured.data } as any;
+    }
+    const res = await api.get<ApiResponse<Product[]>>('/products/featured');
+    if (res.data?.success) {
+      cachedFeatured = { data: res.data, timestamp: now };
+    }
+    return res;
+  },
   getById: (id: string) => api.get<ApiResponse<Product>>(`/products/${id}`),
-  create: (data: any) => api.post<ApiResponse<Product>>('/products', data),
-  update: (id: string, data: any) => api.put<ApiResponse<Product>>(`/products/${id}`, data),
-  delete: (id: string) => api.delete<ApiResponse<null>>(`/products/${id}`),
+  create: async (data: any) => {
+    cachedFeatured = null;
+    return api.post<ApiResponse<Product>>('/products', data);
+  },
+  update: async (id: string, data: any) => {
+    cachedFeatured = null;
+    return api.put<ApiResponse<Product>>(`/products/${id}`, data);
+  },
+  delete: async (id: string) => {
+    cachedFeatured = null;
+    return api.delete<ApiResponse<null>>(`/products/${id}`);
+  },
 };
 
 // 3. Categories API
 export const categoryApi = {
-  getAll: () => api.get<ApiResponse<Category[]>>('/categories'),
+  getAll: async (forceRefresh: boolean = false) => {
+    const now = Date.now();
+    if (!forceRefresh && cachedCategories && now - cachedCategories.timestamp < CACHE_TTL_MS) {
+      return { data: cachedCategories.data } as any;
+    }
+    const res = await api.get<ApiResponse<Category[]>>('/categories');
+    if (res.data?.success) {
+      cachedCategories = { data: res.data, timestamp: now };
+    }
+    return res;
+  },
   getBySlug: (slug: string) => api.get<ApiResponse<Category>>(`/categories/${slug}`),
 };
 
@@ -189,9 +224,18 @@ export const adminApi = {
     api.post<ApiResponse<Order>>(`/admin/orders/${id}/refund`, data),
   getReviews: () => api.get<ApiResponse<Review[]>>('/admin/reviews'),
   deleteReview: (id: string) => api.delete<ApiResponse<null>>(`/admin/reviews/${id}`),
-  createCategory: (data: any) => api.post<ApiResponse<any>>('/categories', data),
-  updateCategory: (id: string, data: any) => api.put<ApiResponse<any>>(`/categories/${id}`, data),
-  deleteCategory: (id: string) => api.delete<ApiResponse<null>>(`/categories/${id}`),
+  createCategory: (data: any) => {
+    cachedCategories = null;
+    return api.post<ApiResponse<any>>('/categories', data);
+  },
+  updateCategory: (id: string, data: any) => {
+    cachedCategories = null;
+    return api.put<ApiResponse<any>>(`/categories/${id}`, data);
+  },
+  deleteCategory: (id: string) => {
+    cachedCategories = null;
+    return api.delete<ApiResponse<null>>(`/categories/${id}`);
+  },
 };
 
 // 10. Notifications API
@@ -210,18 +254,6 @@ export const uploadApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
-};
-
-// 12. Future AI APIs
-export const aiApi = {
-  getCropRecommendations: (data: any) => api.post('/ai/crop-recommendation', data),
-  getPricePrediction: (data: any) => api.post('/ai/price-prediction', data),
-  getDiseaseDetection: (data: any) => api.post('/ai/disease-detection', data),
-  predictPrice: (cropName: string, location: string) =>
-    api.post<ApiResponse<{ predictedPrice: number; trend: string; confidence: number; recommendation: string }>>(
-      '/ai/price-prediction',
-      { cropName, location }
-    ),
 };
 
 export default api;

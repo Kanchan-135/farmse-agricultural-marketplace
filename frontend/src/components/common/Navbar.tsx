@@ -79,7 +79,7 @@ export const Navbar: React.FC = () => {
     if (isAuthenticated) {
       fetchNotifications();
     }
-  }, [isAuthenticated, location.pathname]);
+  }, [isAuthenticated]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

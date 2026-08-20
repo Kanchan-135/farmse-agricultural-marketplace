@@ -30,7 +30,6 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
 
     try {
-      setIsLoading(true);
       const res = await wishlistApi.getWishlist();
       if (res.data.success && res.data.data) {
         setWishlist(res.data.data);
@@ -38,8 +37,6 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     } catch (err) {
       console.error('Failed to fetch wishlist:', err);
-    } finally {
-      setIsLoading(false);
     }
   }, [isAuthenticated]);
 

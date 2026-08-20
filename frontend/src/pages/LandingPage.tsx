@@ -25,33 +25,49 @@ import { productApi, categoryApi } from '../services/api';
 import { ProductCard } from '../components/marketplace/ProductCard';
 import { useTranslation } from '../context/LanguageContext';
 
+const DEFAULT_CATEGORIES: Category[] = [
+  { id: '1', name: 'Fresh Fruits', slug: 'fruits', icon: 'Apple', description: 'Fresh seasonal fruits' },
+  { id: '2', name: 'Organic Vegetables', slug: 'vegetables', icon: 'Carrot', description: 'Farm-fresh veggies' },
+  { id: '3', name: 'Grains & Pulses', slug: 'grains', icon: 'Wheat', description: 'Organic staple grains' },
+  { id: '4', name: 'Dairy & Eggs', slug: 'dairy', icon: 'Milk', description: 'Farm direct dairy' },
+  { id: '5', name: 'Aromatic Spices', slug: 'spices', icon: 'Flame', description: 'Pure Indian spices' },
+  { id: '6', name: 'Organic Herbs', slug: 'herbs', icon: 'Flower2', description: 'Herbs & medicinal plants' },
+];
+
 export const LandingPage: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+  const [loading, setLoading] = useState<boolean>(false);
   const { t } = useTranslation();
 
   useEffect(() => {
+    let isMounted = true;
     const fetchData = async () => {
       try {
-        setLoading(true);
-        const [prodRes, catRes] = await Promise.all([
+        const [prodRes, catRes] = await Promise.allSettled([
           productApi.getFeatured(),
           categoryApi.getAll(),
         ]);
-        if (prodRes.data.success && prodRes.data.data) {
-          setFeaturedProducts(prodRes.data.data);
-        }
-        if (catRes.data.success && catRes.data.data) {
-          setCategories(catRes.data.data);
+        if (isMounted) {
+          if (prodRes.status === 'fulfilled' && prodRes.value.data.success && prodRes.value.data.data) {
+            setFeaturedProducts(prodRes.value.data.data);
+          }
+          if (catRes.status === 'fulfilled' && catRes.value.data.success && catRes.value.data.data && catRes.value.data.data.length > 0) {
+            setCategories(catRes.value.data.data);
+          }
         }
       } catch (err) {
         console.error('Failed to load landing page data:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
     fetchData();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const getCategoryName = (slug: string, defaultName: string) => {

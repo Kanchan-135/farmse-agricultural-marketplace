@@ -34,15 +34,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      setIsLoading(true);
       const res = await cartApi.getCart();
       if (res.data.success && res.data.data) {
         setCart(res.data.data);
       }
     } catch (err) {
       console.error('Failed to fetch cart:', err);
-    } finally {
-      setIsLoading(false);
     }
   }, [isAuthenticated]);
 

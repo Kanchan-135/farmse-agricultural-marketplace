@@ -30,12 +30,19 @@ export const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   // If already authenticated, redirect to Home
-  if (isAuthenticated && user) {
-    return <Navigate to="/" replace />;
-  }
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      if (role === 'FARMER') {
+        navigate('/farmer/dashboard', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, role, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
 
     const payload: any = {
@@ -59,13 +66,8 @@ export const RegisterPage: React.FC = () => {
     }
 
     const success = await register(payload);
-    setLoading(false);
-    if (success) {
-      if (role === 'FARMER') {
-        navigate('/farmer/dashboard');
-      } else {
-        navigate('/');
-      }
+    if (!success) {
+      setLoading(false);
     }
   };
 

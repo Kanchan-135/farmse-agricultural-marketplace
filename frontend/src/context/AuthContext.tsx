@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, Role } from '../types';
 import { authApi } from '../services/api';
 import { useToast } from './ToastContext';
@@ -21,15 +21,31 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  // Synchronous session hydration from localStorage to eliminate startup lag
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('farmse_token'));
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const stored = localStorage.getItem('farmse_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // If already authenticated in localStorage, do not block the UI
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    const storedToken = localStorage.getItem('farmse_token');
+    const storedUser = localStorage.getItem('farmse_user');
+    return !!storedToken && !storedUser;
+  });
+
   const { success, error: toastError } = useToast();
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     const storedToken = localStorage.getItem('farmse_token');
     if (!storedToken) {
       setUser(null);
+      setToken(null);
       setIsLoading(false);
       return;
     }
@@ -40,20 +56,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(res.data.data);
         localStorage.setItem('farmse_user', JSON.stringify(res.data.data));
       }
-    } catch (err) {
-      console.error('Failed to load user profile:', err);
-      localStorage.removeItem('farmse_token');
-      localStorage.removeItem('farmse_user');
-      setUser(null);
-      setToken(null);
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem('farmse_token');
+        localStorage.removeItem('farmse_user');
+        setUser(null);
+        setToken(null);
+      }
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    refreshUser();
-  }, []);
+    // Only refresh in background if token exists
+    if (token) {
+      refreshUser();
+    }
+  }, [token, refreshUser]);
 
   const login = async (credentials: any): Promise<boolean> => {
     try {
@@ -65,16 +85,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('farmse_user', JSON.stringify(receivedUser));
         setToken(receivedToken);
         setUser(receivedUser);
+        setIsLoading(false);
         success(`Welcome back, ${receivedUser.name}! 🌾`);
         return true;
       }
+      setIsLoading(false);
       return false;
     } catch (err: any) {
+      setIsLoading(false);
       const msg = err.response?.data?.error || 'Invalid credentials';
       toastError(msg);
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -88,16 +109,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('farmse_user', JSON.stringify(receivedUser));
         setToken(receivedToken);
         setUser(receivedUser);
+        setIsLoading(false);
         success(`Account created! Welcome to FarmSe, ${receivedUser.name}!`);
         return true;
       }
+      setIsLoading(false);
       return false;
     } catch (err: any) {
+      setIsLoading(false);
       const msg = err.response?.data?.error || 'Registration failed';
       toastError(msg);
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -106,6 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('farmse_user');
     setToken(null);
     setUser(null);
+    setIsLoading(false);
     success('Logged out successfully.');
   };
 

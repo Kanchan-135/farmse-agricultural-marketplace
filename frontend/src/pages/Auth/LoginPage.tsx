@@ -17,29 +17,31 @@ export const LoginPage: React.FC = () => {
 
   const from = (location.state as any)?.from?.pathname || '/';
 
-  // If already authenticated, redirect to Home
-  if (isAuthenticated && user) {
-    return <Navigate to="/" replace />;
-  }
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, user, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
     const success = await login({ email, password });
-    setLoading(false);
-    if (success) {
-      navigate(from, { replace: true });
+    if (!success) {
+      setLoading(false);
     }
   };
 
-  const handleQuickLogin = (demoEmail: string, demoPass: string) => {
+  const handleQuickLogin = async (demoEmail: string, demoPass: string) => {
+    if (loading) return;
     setEmail(demoEmail);
     setPassword(demoPass);
-    login({ email: demoEmail, password: demoPass }).then((success) => {
-      if (success) {
-        navigate(from, { replace: true });
-      }
-    });
+    setLoading(true);
+    const success = await login({ email: demoEmail, password: demoPass });
+    if (!success) {
+      setLoading(false);
+    }
   };
 
   return (
