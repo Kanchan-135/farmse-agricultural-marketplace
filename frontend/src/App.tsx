@@ -5,12 +5,14 @@ import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { ToastProvider } from './context/ToastContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { PwaProvider } from './context/PwaContext';
 
 // Common Components
 import { Navbar } from './components/common/Navbar';
 import { BottomNav } from './components/common/BottomNav';
 import { Footer } from './components/common/Footer';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
+import { PwaInstallPrompt } from './components/common/PwaInstallPrompt';
 
 // Pages
 import { LandingPage } from './pages/LandingPage';
@@ -50,176 +52,179 @@ export const App: React.FC = () => {
     <Router>
       <ToastProvider>
         <LanguageProvider>
-          <AuthProvider>
-            <CartProvider>
-              <WishlistProvider>
-              <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
-                <Navbar />
-                <main className="flex-1 pb-16 md:pb-0">
-                  <Routes>
-                    {/* Public Marketplace & Home Routes */}
-                    <Route path="/" element={<LandingPage />} />
-                    <Route path="/marketplace" element={<MarketplacePage />} />
-                    <Route path="/products/:id" element={<ProductDetailsPage />} />
-                    <Route path="/cart" element={<CartPage />} />
+          <PwaProvider>
+            <AuthProvider>
+              <CartProvider>
+                <WishlistProvider>
+                  <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900 selection:bg-emerald-500 selection:text-white">
+                    <Navbar />
+                    <main className="flex-1 pb-16 md:pb-0">
+                      <Routes>
+                        {/* Public Marketplace & Home Routes */}
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/marketplace" element={<MarketplacePage />} />
+                        <Route path="/products/:id" element={<ProductDetailsPage />} />
+                        <Route path="/cart" element={<CartPage />} />
 
-                    {/* Auth Routes */}
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                        {/* Auth Routes */}
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-                    {/* Customer Protected Routes */}
-                    <Route
-                      path="/checkout"
-                      element={
-                        <ProtectedRoute>
-                          <CheckoutPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/order-success/:id"
-                      element={
-                        <ProtectedRoute>
-                          <OrderSuccessPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/orders/track/:id"
-                      element={
-                        <ProtectedRoute>
-                          <OrderTrackingPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/customer/dashboard"
-                      element={
-                        <ProtectedRoute>
-                          <CustomerDashboard />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/customer/orders"
-                      element={
-                        <ProtectedRoute>
-                          <CustomerOrdersPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/customer/wishlist"
-                      element={
-                        <ProtectedRoute>
-                          <CustomerWishlistPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/customer/profile"
-                      element={
-                        <ProtectedRoute>
-                          <CustomerProfilePage />
-                        </ProtectedRoute>
-                      }
-                    />
+                        {/* Customer Protected Routes */}
+                        <Route
+                          path="/checkout"
+                          element={
+                            <ProtectedRoute>
+                              <CheckoutPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/order-success/:id"
+                          element={
+                            <ProtectedRoute>
+                              <OrderSuccessPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/orders/track/:id"
+                          element={
+                            <ProtectedRoute>
+                              <OrderTrackingPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/customer/dashboard"
+                          element={
+                            <ProtectedRoute>
+                              <CustomerDashboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/customer/orders"
+                          element={
+                            <ProtectedRoute>
+                              <CustomerOrdersPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/customer/wishlist"
+                          element={
+                            <ProtectedRoute>
+                              <CustomerWishlistPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/customer/profile"
+                          element={
+                            <ProtectedRoute>
+                              <CustomerProfilePage />
+                            </ProtectedRoute>
+                          }
+                        />
 
-                    {/* Farmer Protected Routes */}
-                    <Route
-                      path="/farmer/dashboard"
-                      element={
-                        <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
-                          <FarmerDashboard />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/farmer/products"
-                      element={
-                        <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
-                          <FarmerProductsPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/farmer/products/new"
-                      element={
-                        <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
-                          <FarmerAddEditProductPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/farmer/products/edit/:id"
-                      element={
-                        <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
-                          <FarmerAddEditProductPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/farmer/orders"
-                      element={
-                        <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
-                          <FarmerOrdersPage />
-                        </ProtectedRoute>
-                      }
-                    />
+                        {/* Farmer Protected Routes */}
+                        <Route
+                          path="/farmer/dashboard"
+                          element={
+                            <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
+                              <FarmerDashboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/farmer/products"
+                          element={
+                            <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
+                              <FarmerProductsPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/farmer/products/new"
+                          element={
+                            <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
+                              <FarmerAddEditProductPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/farmer/products/edit/:id"
+                          element={
+                            <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
+                              <FarmerAddEditProductPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/farmer/orders"
+                          element={
+                            <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
+                              <FarmerOrdersPage />
+                            </ProtectedRoute>
+                          }
+                        />
 
-                    {/* Admin Protected Routes */}
-                    <Route
-                      path="/admin/dashboard"
-                      element={
-                        <ProtectedRoute allowedRoles={['ADMIN']}>
-                          <AdminDashboard />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin/farmers"
-                      element={
-                        <ProtectedRoute allowedRoles={['ADMIN']}>
-                          <AdminFarmersPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin/products"
-                      element={
-                        <ProtectedRoute allowedRoles={['ADMIN']}>
-                          <AdminProductsPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin/orders"
-                      element={
-                        <ProtectedRoute allowedRoles={['ADMIN']}>
-                          <AdminOrdersPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin/users"
-                      element={
-                        <ProtectedRoute allowedRoles={['ADMIN']}>
-                          <AdminUsersPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                  </Routes>
-                </main>
-                <Footer />
-                <BottomNav />
-              </div>
-            </WishlistProvider>
-          </CartProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </ToastProvider>
-  </Router>
+                        {/* Admin Protected Routes */}
+                        <Route
+                          path="/admin/dashboard"
+                          element={
+                            <ProtectedRoute allowedRoles={['ADMIN']}>
+                              <AdminDashboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/admin/farmers"
+                          element={
+                            <ProtectedRoute allowedRoles={['ADMIN']}>
+                              <AdminFarmersPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/admin/products"
+                          element={
+                            <ProtectedRoute allowedRoles={['ADMIN']}>
+                              <AdminProductsPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/admin/orders"
+                          element={
+                            <ProtectedRoute allowedRoles={['ADMIN']}>
+                              <AdminOrdersPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/admin/users"
+                          element={
+                            <ProtectedRoute allowedRoles={['ADMIN']}>
+                              <AdminUsersPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                      </Routes>
+                    </main>
+                    <Footer />
+                    <BottomNav />
+                    <PwaInstallPrompt />
+                  </div>
+                </WishlistProvider>
+              </CartProvider>
+            </AuthProvider>
+          </PwaProvider>
+        </LanguageProvider>
+      </ToastProvider>
+    </Router>
   );
 };
 

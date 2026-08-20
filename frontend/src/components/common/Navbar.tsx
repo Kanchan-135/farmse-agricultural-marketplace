@@ -17,11 +17,13 @@ import {
   ChevronDown,
   Sparkles,
   Tractor,
+  Download,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useTranslation } from '../../context/LanguageContext';
+import { usePwa } from '../../context/PwaContext';
 import { LanguageSelector } from './LanguageSelector';
 import { notificationApi } from '../../services/api';
 import { Notification } from '../../types';
@@ -31,6 +33,7 @@ export const Navbar: React.FC = () => {
   const { itemCount } = useCart();
   const { wishlist } = useWishlist();
   const { t } = useTranslation();
+  const { isInstallable, isInstalled, installApp } = usePwa();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -188,6 +191,18 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Language Selector Dropdown */}
             <LanguageSelector variant="navbar" />
+
+            {/* PWA Install Button on Desktop */}
+            {isInstallable && !isInstalled && (
+              <button
+                onClick={installApp}
+                className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-300 shadow-sm transition animate-fade-in"
+                title="Install FarmSe App"
+              >
+                <Download className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Install App</span>
+              </button>
+            )}
 
             {/* Wishlist */}
             <Link
@@ -430,6 +445,18 @@ export const Navbar: React.FC = () => {
             </form>
 
             <LanguageSelector variant="mobile" />
+
+            {isInstallable && !isInstalled && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  installApp();
+                }}
+                className="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-md shadow-emerald-600/20"
+              >
+                <Download className="w-4 h-4" /> Install FarmSe Mobile App
+              </button>
+            )}
 
             <div className="grid grid-cols-2 gap-2 text-xs font-bold">
               <Link
