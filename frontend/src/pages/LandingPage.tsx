@@ -129,24 +129,24 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 {/* Floating Farm Badge 1 */}
-                <div className="absolute -bottom-6 -left-4 sm:-left-8 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-3 animate-bounce-slow">
-                  <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                    <Sprout className="w-6 h-6" />
+                <div className="absolute -bottom-3 left-2 sm:-left-6 bg-white/95 backdrop-blur-md p-3 sm:p-4 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-2.5 sm:gap-3 animate-bounce-slow max-w-[85%] sm:max-w-none">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <Sprout className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-900">{t('common.organic')}</p>
-                    <p className="text-[11px] text-gray-500">{t('home.featFreshDesc')}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-gray-900 truncate">{t('common.organic')}</p>
+                    <p className="text-[10px] sm:text-[11px] text-gray-500 truncate">{t('home.featFreshDesc')}</p>
                   </div>
                 </div>
 
                 {/* Floating Farm Badge 2 */}
-                <div className="absolute -top-4 -right-4 sm:-right-6 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
-                    <Award className="w-5 h-5" />
+                <div className="absolute -top-3 right-2 sm:-right-4 bg-white/95 backdrop-blur-md p-2.5 sm:p-3.5 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-2 sm:gap-2.5 max-w-[85%] sm:max-w-none">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                    <Award className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-900">{t('common.verified')}</p>
-                    <p className="text-[10px] text-gray-500">{t('home.featTraceableTitle')}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-gray-900 truncate">{t('common.verified')}</p>
+                    <p className="text-[10px] text-gray-500 truncate">{t('home.featTraceableTitle')}</p>
                   </div>
                 </div>
               </div>

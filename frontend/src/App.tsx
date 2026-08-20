@@ -52,9 +52,9 @@ const AppContent: React.FC = () => {
   useCapacitorNative();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900 selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen w-full max-w-full flex flex-col bg-gray-50 text-gray-900 selection:bg-emerald-500 selection:text-white">
       <Navbar />
-      <main className="flex-1 pb-16 md:pb-0">
+      <main className="flex-1 pb-16 md:pb-0 w-full max-w-full">
         <Routes>
           {/* Public Marketplace & Home Routes */}
           <Route path="/" element={<LandingPage />} />

@@ -251,7 +251,7 @@ export const Navbar: React.FC = () => {
                 </button>
 
                 {notifDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-slide-down">
+                  <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-sm bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-slide-down">
                     <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
                       <h4 className="font-bold text-gray-900 text-xs flex items-center gap-1.5">
                         <Bell className="w-4 h-4 text-emerald-700" /> {t('nav.notifications')}
@@ -316,7 +316,7 @@ export const Navbar: React.FC = () => {
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-3xl shadow-2xl border border-gray-100 py-2 z-50 animate-slide-down">
+                  <div className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-gray-100 py-2 z-50 animate-slide-down">
                     <div className="px-4 py-3 border-b border-gray-100">
                       <p className="text-xs font-extrabold text-gray-900">{user?.name}</p>
                       <p className="text-[11px] text-gray-500 truncate">{user?.email}</p>

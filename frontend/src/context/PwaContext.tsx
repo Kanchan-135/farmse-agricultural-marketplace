@@ -43,8 +43,11 @@ export const PwaProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [showAndroidGuide, setShowAndroidGuide] = useState<boolean>(false);
 
   useEffect(() => {
-    // Check if running in standalone mode (installed as PWA on Android / iOS)
+    // Check if running in standalone mode (installed as PWA on Android / iOS / Capacitor APK)
     const isStandalone =
+      (window as any).Capacitor?.isNativePlatform?.() ||
+      window.location.protocol === 'capacitor:' ||
+      window.location.protocol === 'ionic:' ||
       window.matchMedia('(display-mode: standalone)').matches ||
       window.matchMedia('(display-mode: fullscreen)').matches ||
       window.matchMedia('(display-mode: minimal-ui)').matches ||
