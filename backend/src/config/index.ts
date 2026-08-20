@@ -8,9 +8,13 @@ const parseOrigins = (): (string | RegExp)[] => {
     'http://localhost:5173',
     'http://localhost:3000',
     'http://127.0.0.1:5173',
+    'http://localhost:4173',
     'capacitor://localhost',
     'http://localhost',
     'https://localhost',
+    'https://farmse-agricultural-marketplace.vercel.app',
+    'https://farmse.vercel.app',
+    /^https:\/\/.*\.vercel\.app$/, // Allow all Vercel production & preview deployments
   ];
 
   // Collect potential origin env vars
@@ -43,7 +47,10 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL || '',
   jwtSecret: process.env.JWT_SECRET || 'farmse_super_secret_jwt_key_agriculture_2026',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  clientUrl: process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173',
+  clientUrl:
+    process.env.FRONTEND_URL ||
+    process.env.CLIENT_URL ||
+    'https://farmse-agricultural-marketplace.vercel.app',
   corsOrigins: parseOrigins(),
   uploadDir: path.resolve(__dirname, '../../uploads'),
 };

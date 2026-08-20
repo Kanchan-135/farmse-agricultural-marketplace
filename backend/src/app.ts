@@ -26,12 +26,14 @@ app.use(
         return callback(null, true);
       }
 
+      const cleanOrigin = requestOrigin.replace(/\/$/, '');
+
       const isAllowed = config.corsOrigins.some((allowed) => {
         if (typeof allowed === 'string') {
-          return allowed === requestOrigin || allowed === '*';
+          return allowed.toLowerCase() === cleanOrigin.toLowerCase() || allowed === '*';
         }
         if (allowed instanceof RegExp) {
-          return allowed.test(requestOrigin);
+          return allowed.test(cleanOrigin);
         }
         return false;
       });
@@ -39,7 +41,7 @@ app.use(
       if (isAllowed) {
         callback(null, true);
       } else {
-        // Log warning in development
+        // Log warning in development or allow if in development
         if (!config.isProduction) {
           console.warn(`[CORS] Origin ${requestOrigin} not explicitly whitelisted, allowing in dev`);
           return callback(null, true);
