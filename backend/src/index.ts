@@ -1,23 +1,31 @@
+import path from 'path';
+import { execSync } from 'child_process';
 import app from './app';
 import { config } from './config';
 import prisma from './models/prisma';
 
 const startServer = async () => {
   try {
-    // Verify database connectivity
+    // 1. Verify database connectivity
     await prisma.$queryRaw`SELECT 1`;
     console.log('✅ Database connection verified successfully');
 
+    // 2. Verify tables exist, or auto-migrate if needed
     try {
       const userCount = await prisma.user.count();
       console.log(`📦 Database schema ready. Current user count: ${userCount}`);
     } catch (schemaErr: any) {
-      console.error(
-        '⚠️ DATABASE TABLES MISSING: The PostgreSQL database is connected, but tables have not been created yet.',
-        'Please ensure "npx prisma db push" or "npx prisma migrate deploy" has executed.',
-        'Error:',
-        schemaErr.message
-      );
+      console.warn('⚠️ User table not detected in database. Executing automatic schema migration...');
+      try {
+        execSync('npx prisma migrate deploy || npx prisma db push --accept-data-loss', {
+          stdio: 'inherit',
+          cwd: path.resolve(__dirname, '..'),
+        });
+        const countAfter = await prisma.user.count();
+        console.log(`✅ Database tables created successfully on boot! Total users: ${countAfter}`);
+      } catch (migrateErr: any) {
+        console.error('❌ Automatic schema migration execution failed:', migrateErr.message);
+      }
     }
   } catch (error: any) {
     console.error('❌ Database connection failure on boot:', error.message);

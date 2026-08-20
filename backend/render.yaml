@@ -3,7 +3,7 @@ services:
     name: farmse-api
     env: node
     rootDir: backend
-    buildCommand: npm install --include=dev && npx prisma generate && npx prisma db push --accept-data-loss && npm run build
+    buildCommand: npm install --include=dev && npx prisma generate && (npx prisma migrate deploy || npx prisma db push --accept-data-loss) && npm run build
     startCommand: npm run start
     plan: free
     envVars:
