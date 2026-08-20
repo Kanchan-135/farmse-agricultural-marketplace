@@ -13,11 +13,15 @@ import {
   AdminStats,
 } from '../types';
 
-// Dynamic API URL for Web & Android Capacitor deployment
+// Dynamic API URL with smart formatting for Web & Android Capacitor deployment
+export const formatApiUrl = (url?: string): string => {
+  if (!url || url.trim() === '') return '/api';
+  const clean = url.trim().replace(/\/$/, '');
+  return clean.endsWith('/api') ? clean : `${clean}/api`;
+};
+
 const rawApiUrl = import.meta.env.VITE_API_URL;
-export const API_BASE_URL = rawApiUrl
-  ? rawApiUrl.replace(/\/$/, '')
-  : '/api';
+export const API_BASE_URL = formatApiUrl(rawApiUrl);
 
 /**
  * Resolves static media URLs (e.g. /uploads/...) to full absolute URLs when running
@@ -118,9 +122,10 @@ export const orderApi = {
     paymentMethod: string;
     notes?: string;
     directItem?: { productId: string; quantity: number };
-  }) => api.post<ApiResponse<{ order: Order; payment: any }>>('/orders/checkout', data),
+  }) => api.post<ApiResponse<{ order: Order; payment?: any }>>('/orders/checkout', data),
   getMyOrders: () => api.get<ApiResponse<Order[]>>('/orders/my-orders'),
   getOrderById: (id: string) => api.get<ApiResponse<Order>>(`/orders/${id}`),
+  getById: (id: string) => api.get<ApiResponse<Order>>(`/orders/${id}`),
   cancelOrder: (id: string) => api.post<ApiResponse<Order>>(`/orders/${id}/cancel`),
 };
 
@@ -128,7 +133,13 @@ export const orderApi = {
 export const reviewApi = {
   getProductReviews: (productId: string) =>
     api.get<ApiResponse<Review[]>>(`/reviews/product/${productId}`),
+  getByProduct: (productId: string) =>
+    api.get<ApiResponse<{ reviews: Review[]; total: number; averageRating: number }>>(
+      `/reviews/product/${productId}`
+    ),
   createReview: (data: { productId: string; rating: number; comment?: string }) =>
+    api.post<ApiResponse<Review>>('/reviews', data),
+  create: (data: { productId: string; rating: number; comment?: string }) =>
     api.post<ApiResponse<Review>>('/reviews', data),
 };
 
@@ -140,15 +151,20 @@ export const farmerApi = {
     api.get<ApiResponse<OrderItem[]>>('/farmer/orders', { params }),
   updateOrderStatus: (orderId: string, status: string) =>
     api.patch<ApiResponse<Order>>(`/farmer/orders/${orderId}/status`, { status }),
+  toggleProductStock: (productId: string) =>
+    api.patch<ApiResponse<Product>>(`/farmer/products/${productId}/toggle-stock`),
 };
 
 // 9. Admin API
 export const adminApi = {
   getStats: () => api.get<ApiResponse<AdminStats>>('/admin/stats'),
   getUsers: (params?: any) => api.get<ApiResponse<User[]>>('/admin/users', { params }),
+  getAllFarmers: () => api.get<ApiResponse<any[]>>('/admin/farmers'),
   toggleUserStatus: (id: string) => api.patch<ApiResponse<User>>(`/admin/users/${id}/toggle-status`),
   toggleFarmerApproval: (id: string) =>
     api.patch<ApiResponse<{ isApproved: boolean }>>(`/admin/farmers/${id}/toggle-approval`),
+  verifyFarmer: (farmerId: string, isVerified: boolean) =>
+    api.patch<ApiResponse<any>>(`/admin/farmers/${farmerId}/verify`, { isVerified }),
   getOrders: (params?: any) => api.get<ApiResponse<Order[]>>('/admin/orders', { params }),
   getReviews: () => api.get<ApiResponse<Review[]>>('/admin/reviews'),
   deleteReview: (id: string) => api.delete<ApiResponse<null>>(`/admin/reviews/${id}`),
@@ -177,6 +193,11 @@ export const aiApi = {
   getCropRecommendations: (data: any) => api.post('/ai/crop-recommendation', data),
   getPricePrediction: (data: any) => api.post('/ai/price-prediction', data),
   getDiseaseDetection: (data: any) => api.post('/ai/disease-detection', data),
+  predictPrice: (cropName: string, location: string) =>
+    api.post<ApiResponse<{ predictedPrice: number; trend: string; confidence: number; recommendation: string }>>(
+      '/ai/price-prediction',
+      { cropName, location }
+    ),
 };
 
 export default api;
